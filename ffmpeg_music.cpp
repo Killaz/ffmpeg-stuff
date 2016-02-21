@@ -20,18 +20,13 @@ typedef unsigned char uchar;
 
 char format1[9] = "mp3", format2[9] = "mp3";
 
-void StrCat(char *a, char *b) {
-/*	while (*a++ != 0);
-	a--;
-	while (*b != 0)
-		*a++ = *b++;
-	*a = 0;*/
+void StrCat(char *where, char *from) {
 	int i = 0, j = 0;
-	while (a[i] != 0)
+	while (where[i] != 0)
 		i++;
-	while (b[j] != 0)
-		a[i++] = b[j++];
-	a[i] = 0;
+	do {
+		where[i++] = from[j++];
+	} while (from[j] != 0);
 }
 
 bool StrCompare(char *where, char *what, int from) {
@@ -43,7 +38,7 @@ bool StrCompare(char *where, char *what, int from) {
 	return 1;
 }
 
-bool StrClear(char *from, int hmuch) { // Отрезать от конца строки from hmuch символов
+bool StrClear(char *from, int hmuch) { // Отрезать от конца строки <from> <hmuch> символов
 	int len = strlen(from);
 	if (len < hmuch)
 		return 0;
@@ -81,7 +76,7 @@ int main() {
 	sprintf(file, "%s\\Documents\\Tree_%ld.txth", prof, t);
 //	Start:
 	system("cls");
-	printf("Программа находится в папке с музыкой?\n");
+/*	printf("Программа находится в папке с музыкой?\n");
 	c = getch();
 	if (c == 27) {
 		printf("Esc\n");
@@ -90,7 +85,7 @@ int main() {
 		printf("%c\n", c);
 		quit("Не было получено подтверждение");
 	}
-	printf("%c\n", c);
+	printf("%c\n", c);*/
 	Format:;
 	printf("Будут перегоняться файлы из *.%s в *.%s?\n", format1, format2);
 	c = getch();
@@ -174,7 +169,8 @@ int main() {
     	goto Deleting;
 	}
 	Params:;
-	printf("Сейчас строка компиляции выглядит так: %s -i \"<filename>.%s\" %s \"Output %ld\\<filename>.%s\"\nИспользовать эту строку? В случае отказа (не Y или Enter) вам будет предложено ввести свою строку параметров; Esc - выход\n", ffpath, format1, param, t, format2);
+	printf("Сейчас строка компиляции выглядит так: %s -i \"<filename>.%s\" %s \"Output %ld\\<filename>.%s\"\nИспользовать эту строку? "
+	       "В случае отказа (не Y или Enter) вам будет предложено ввести свою строку параметров; Esc - выход\n", ffpath, format1, param, t, format2);
 	c = getch();
 	if (c == 27) {
 		printf("Esc\n");
