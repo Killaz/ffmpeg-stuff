@@ -6,15 +6,36 @@
 
 #define elif else if
 #define quit(a) \
-	printf("%s; Завершение программы.\n", a); \
-	system("pause"); \
+	printRusComment(a); \
+	printRusComment("; ╟ртхЁ°хэшх яЁюуЁрьь√. ═рцьшЄх ы■сє■ ъэюяъє фы  яюфЄтхЁцфхэш .\n"); \
+	getch(); \
 	return 0;
-//#define file "%userprofile%/Documents/Tree.txth"
+
 #define lol() printf("Lol\n")
 
-typedef unsigned char uchar;
-
 char format[9] = "";
+
+void printRusComment(char *str) {
+	int len = strlen(str);
+	char s[800];
+//	char *s = (char *) malloc(len * sizeof(char));
+	if (s == NULL)
+		return (void) -1;
+	for (int i = 0; i <= len; i++)
+		s[i] = str[i];
+	for (int i = 0; i < len; i++) {
+		if ((s[i] >= '└'&& s[i] <= '▀') || (s[i] >= 'р' && s[i] <= 'я'))
+			s[i] += 192;
+		else if (s[i] >= 'Ё' && s[i] <= ' ')
+			s[i] += 240;
+		else if (s[i] == '╕')
+			s[i] += 57;
+		else if (s[i] == 'и')
+			s[i] += 72;
+	}
+	printf("%s", s);
+//	free(s);
+}
 
 void StrCat(char *where, char *from) {
 	int i = 0, j = 0;
@@ -34,7 +55,7 @@ bool StrCompare(char *where, char *what, int from) {
 	return 1;
 }
 
-bool StrClear(char *from, int hmuch) { // Отрезать от конца строки from hmuch символов
+bool StrClear(char *from, int hmuch) { // ╬ЄЁхчрЄ№ юЄ ъюэЎр ёЄЁюъш from hmuch ёшьтюыют
 	int len = strlen(from);
 	if (len < hmuch)
 		return 0;
@@ -68,7 +89,7 @@ bool read(char *s, FILE *f) {
 }
 
 int main() {
-	char c = 0, tmp, file1[120], file2[120], str[350], ffpath[90] = "C:\\ffmpeg\\bin\\ffmpeg.exe", param[120] = "-q:v 1";
+	char c = 0, tmpC, file1[120], file2[120], str[350], ffpath[90] = "C:\\ffmpeg\\bin\\ffmpeg.exe", param[120] = "-q:v 1 -qmax 10", tmp[800];
 	bool u = 0; // skip-parameter
 	time_t t;
 //	Init:;
@@ -76,71 +97,77 @@ int main() {
 	memset(file2, 0, sizeof(file2));
 //	Start:
 	system("cls");
-	printf("Пути, если необходимо, нужно вводить с ковычками. Можно \"перетаскивать\" файлы в консоль для получения пути\n");
+	printRusComment("╧єЄш, хёыш эхюсїюфшью, эєцэю ттюфшЄ№ ё ъют√ўърьш. ╠юцэю \"яхЁхЄрёъштрЄ№\" Їрщы√ т ъюэёюы№ фы  яюыєўхэш  яєЄш.\n");
 	Opening:;
-	printf("Введите путь до первого файла (изображение для левого глаза): ");
+	printRusComment("┬тхфшЄх яєЄ№ фю яхЁтюую Їрщыр (шчюсЁрцхэшх фы  ыхтюую уырчр): ");
 	read(file1, stdin);
 	if (!Analize(file1)) {
-		quit("Ошибка: не удается распознать формат файла");
+		quit("╬°шсър: эх єфрхЄё  ЁрёяючэрЄ№ ЇюЁьрЄ Їрщыр");
 	}
-	printf("Введите путь до второго файла (изображение для правого глаза): ");
+	printRusComment("┬тхфшЄх яєЄ№ фю тЄюЁюую Їрщыр (шчюсЁрцхэшх фы  яЁртюую уырчр): ");
 	read(file2, stdin);
 	StrClear(file2, strlen(format) + 1);
 	if (u)
 		goto FFtry;
-	printf("Файлы:\n1: %s.%s\n2: %s.%s\n(N - заново написать пути, Esc - выход, F - указать расположение ffmpeg'а (если не C:\\ffmpeg\\bin), B - Задать строку параметров (если не -q:v 1), K - F+B:\n", file1, format, file2, format);
+	sprintf(tmp, "╘рщы√:\n1: %s.%s\n2: %s.%s\n(N - чрэютю эряшёрЄ№ яєЄш, Esc - т√їюф, F - єърчрЄ№ Ёрёяюыюцхэшх ffmpeg'р (хёыш эх C:\\ffmpeg\\bin)"
+	       ", B - ╟рфрЄ№ ёЄЁюъє ярЁрьхЄЁют (хёыш эх -q:v 1), K - F+B:\n", file1, format, file2, format);
+	printRusComment(tmp);
 	c = getch();
 	if (c == 27) {
 		quit("Esc");
 	}
-	tmp = c;
-	if (c == 'N' || c == 'n' || c == 'т' || c == 'Т')
+	tmpC = c;
+	if (c == 'N' || c == 'n' || c == 'Є' || c == '╥')
 		goto Opening;		
-	if (c == 'B' || c == 'b' || c == 'и' || c == 'И')
+	if (c == 'B' || c == 'b' || c == 'ш' || c == '╚')
 		goto Params;
-	if (c != 'F' && c != 'f' && c != 'а' && c != 'А' && c != 'K' && c != 'k' && c != 'л' && c != 'Л')
+	if (c != 'F' && c != 'f' && c != 'р' && c != '└' && c != 'K' && c != 'k' && c != 'ы' && c != '╦')
 		goto FFtry;
 //	Prepare:;
 	Pathing:;
-	printf("ffmpeg.exe можно найти по адресу \"%s\"?\n", ffpath);
+	sprintf(tmp, "ffmpeg.exe ьюцэю эрщЄш яю рфЁхёє \"%s\"?\n", ffpath);
+	printRusComment(tmp);
 	c = getch();
     printf("%c\n", c);
-    if (c != 'y' && c != 'Y' && c != 'н' && c != 'Н' && c != 13) {
-    	printf("Напишите путь до ffmpeg.exe: ");
+    if (c != 'y' && c != 'Y' && c != 'э' && c != '═' && c != 13) {
+    	printRusComment("═ряш°шЄх яєЄ№ фю ffmpeg.exe: ");
     	read(ffpath, stdin);
     	goto Pathing;
 	}	
-	if (tmp != 'K' && tmp != 'k' && tmp != 'л' && tmp != 'Л')
+	if (tmpC != 'K' && tmpC != 'k' && tmpC != 'ы' && tmpC != '╦')
 		goto FFtry;
 //	Last_prepare:;
 	Params:;
-	printf("Сейчас параметры выглядят так: %s\nИспользовать эту строку? В случае отказа (не Y или Enter) вам будет предложено ввести свою строку параметров; Esc - выход\n", param);
+	sprintf(tmp, "╤хщўрё ярЁрьхЄЁ√ т√уы ф Є Єръ: %s\n╚ёяюы№чютрЄ№ ¤Єє ёЄЁюъє? ┬ ёыєўрх юЄърчр (эх Y шыш Enter) "
+	             "трь сєфхЄ яЁхфыюцхэю ттхёЄш ётю■ ёЄЁюъє ярЁрьхЄЁют; Esc - т√їюф\n", param);
+	printRusComment(tmp);
 	c = getch();
 	if (c == 27) {
 		quit("Esc");
 	} else
 		printf("%c\n", c);
-	if (c == 'n' || c == 'N' || c == 'т' || c == 'Т') {
-		printf("Введите новую строку параметров: ");
+	if (c == 'n' || c == 'N' || c == 'Є' || c == '╥') {
+		printRusComment("┬тхфшЄх эютє■ ёЄЁюъє ярЁрьхЄЁют: ");
 		read(param, stdin);
 		goto Params;
 	}
 //	Work:;
 	FFtry:;
 	memset(str, 0, sizeof(str));
-	sprintf(str, "%s -i %s.%s -i %s.%s -filter_complex \"[0:v]pad=iw*2:ih[bg]; [bg][1:v]overlay=w,colorlevels=rimin=0.082:gimin=0.082:bimin=0.082:rimax=0.9:gimax=0.9:bimax=0.9\" %s %s-all.%s", ffpath, file2, format, file1, format, param, file1, format);
+	sprintf(str, "%s -i %s.%s -i %s.%s -filter_complex \"[0:v]pad=iw*2:ih[bg]; [bg][1:v]overlay=w,colorlevels="
+	             "rimin=0.082:gimin=0.082:bimin=0.082:rimax=0.9:gimax=0.9:bimax=0.9\" %s %s-all.%s", ffpath, file2, format, file1, format, param, file1, format);
 	printf("%s\n", str);
 	if (system(str)) {
-		quit("Ошибка при работе ffmpeg'а");
+		quit("╬°шсър яЁш ЁрсюЄх ffmpeg'р");
 	}
 	if (u)
 		goto Opening;
-	printf("\nНажмите U для продолжения создания стереопар с такими же параметрами, Любую другую клавишу для выхода\n");
+	printRusComment("\n═рцьшЄх U фы  яЁюфюыцхэш  ёючфрэш  ёЄхЁхюярЁ ё Єръшьш цх ярЁрьхЄЁрьш, ╦■сє■ фЁєує■ ъыртш°є фы  т√їюфр\n");
 	t = time(0);
 	while (time(0) - t < 10) {
 		if (kbhit()) {
 			c = getch();
-			if (c == 'u' || c == 'U' || c == 'г' || c == 'Г') {
+			if (c == 'u' || c == 'U' || c == 'у' || c == '├') {
 				u = 1;
 				goto Opening;
 			}

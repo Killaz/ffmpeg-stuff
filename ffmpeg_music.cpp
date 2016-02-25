@@ -6,19 +6,39 @@
 
 #define elif else if
 #define quit(a) \
-	printf("%s; Завершение программы.\n", a); \
+	printRusComment(a); \
+	printRusComment("; ╟ртхЁ°хэшх яЁюуЁрьь√.\n"); \
 	if (off) { \
 		system("shutdown /s /t 120"); \
-		printf("Компьютер будет выключен через 120 секунд.\n"); \
+		printRusComment("╩юья№■ЄхЁ сєфхЄ т√ъы■ўхэ ўхЁхч 120 ёхъєэф.\n"); \
 	} \
 	system("pause"); \
 	return 0;
-//#define file "%userprofile%/Documents/Tree.txth"
 #define lol() printf("Lol\n")
 
-typedef unsigned char uchar;
-
 char format1[9] = "mp3", format2[9] = "mp3";
+
+void printRusComment(char *str) {
+	int len = strlen(str);
+	char s[800];
+//	char *s = (char *) malloc(len * sizeof(char));
+	if (s == NULL)
+		return (void) -1;
+	for (int i = 0; i <= len; i++)
+		s[i] = str[i];
+	for (int i = 0; i < len; i++) {
+		if ((s[i] >= '└'&& s[i] <= '▀') || (s[i] >= 'р' && s[i] <= 'я'))
+			s[i] += 192;
+		else if (s[i] >= 'Ё' && s[i] <= ' ')
+			s[i] += 240;
+		else if (s[i] == '╕')
+			s[i] += 57;
+		else if (s[i] == 'и')
+			s[i] += 72;
+	}
+	printf("%s", s);
+//	free(s);
+}
 
 void StrCat(char *where, char *from) {
 	int i = 0, j = 0;
@@ -38,7 +58,7 @@ bool StrCompare(char *where, char *what, int from) {
 	return 1;
 }
 
-bool StrClear(char *from, int hmuch) { // Отрезать от конца строки <from> <hmuch> символов
+bool StrClear(char *from, int hmuch) { // ╬ЄЁхчрЄ№ юЄ ъюэЎр ёЄЁюъш <from> <hmuch> ёшьтюыют
 	int len = strlen(from);
 	if (len < hmuch)
 		return 0;
@@ -63,35 +83,36 @@ bool read(char *s, FILE *f) {
 int main() {
 	bool u = 0, off = 0;
 	int i, cnt;
-	char c = 0, prof[90], file[90], str[250], ffpath[90], param[80] = "-map 0:a -b:a 112k -ac 2";// = "C:\\ffmpeg\\bin\\ffmpeg.exe";
+	char c = 0, prof[90], file[90], str[250], ffpath[90] = "C:\\ffmpeg\\bin\\ffmpeg.exe", param[80] = "-map 0:a -b:a 112k -ac 2", tmp[800];
 	time_t t, t1;
-	FILE *in;
+	FILE *in = NULL;
 //	Init:;
     t = time(0);
-	memset(ffpath, 0, sizeof(ffpath));
-	StrCat(ffpath, "C:\\ffmpeg\\bin\\ffmpeg.exe");
 	memset(prof, 0, sizeof(prof));
 	StrCat(prof, getenv("USERPROFILE"));
 	memset(file, 0, sizeof(file));
 	sprintf(file, "%s\\Documents\\Tree_%ld.txth", prof, t);
 //	Start:
 	system("cls");
-/*	printf("Программа находится в папке с музыкой?\n");
+/*	printf("╧ЁюуЁрььр эрїюфшЄё  т яряъх ё ьєч√ъющ?\n");
 	c = getch();
 	if (c == 27) {
 		printf("Esc\n");
-		quit("Нажатие Esc");
-	} elif (c != 'y' && c != 'Y' && c != 'н' && c != 'Н' && c != 13) {
+		quit("═рцрЄшх Esc");
+	} elif (c != 'y' && c != 'Y' && c != 'э' && c != '═' && c != 13) {
 		printf("%c\n", c);
-		quit("Не было получено подтверждение");
+		quit("═х с√ыю яюыєўхэю яюфЄтхЁцфхэшх");
 	}
 	printf("%c\n", c);*/
 	Format:;
-	printf("Будут перегоняться файлы из *.%s в *.%s?\n", format1, format2);
+	printRusComment("┴єфєЄ яхЁхуюэ Є№ё  Їрщы√ ");
+	printf("*.%s -> *.%s?\n", format1, format2);
 	c = getch();
 	printf("%c\n", c);
-	if (c != 'y' && c != 'Y' && c != 'н' && c != 'Н' && c != 13) {
-		printf("Введите расширение (например, \"flac mp3\", \"wma m4a\" без кавычек): ");
+	if (c == 27)
+		goto Deleting;
+	if (c != 'y' && c != 'Y' && c != 'э' && c != '═' && c != 13) {
+		printRusComment("┬тхфшЄх Ёрё°шЁхэшх (эряЁшьхЁ, \"flac mp3\", \"wma m4a\" схч ърт√ўхъ): ");
 		scanf("%s %s", format1, format2);
 		goto Format;
 	}
@@ -102,13 +123,14 @@ int main() {
 	system(str);
 	if ((in = fopen(file, "rt")) == NULL) {
 		fclose(stdin);
-		printf("Отказано в доступе к папке для создания временного файла. Нажмите 'Y', если хотите ввести путь к папке с доступом, и любую другую клавишу в другом случае.\n");
+		printRusComment("╬Єърчрэю т фюёЄєях ъ яряъх фы  ёючфрэш  тЁхьхээюую Їрщыр. ═рцьшЄх 'Y', "
+		                "хёыш їюЄшЄх ттхёЄш яєЄ№ ъ яряъх ё фюёЄєяюь, ш ы■сє■ фЁєує■ ъыртш°є т фЁєуюь ёыєўрх.\n");
 		c = getch();
 		printf("%c\n", c);
-		if (c == 'y' || c == 'Y' || c == 'н' || c == 'Н' || c == 13) {
+		if (c == 'y' || c == 'Y' || c == 'э' || c == '═' || c == 13) {
 			memset(file, 0, sizeof(file));
 			i = c = 0;
-			printf("Введите путь до папки: ");
+			printRusComment("┬тхфшЄх яєЄ№ фю яряъш: ");
 			while (c != '\n' /*  Or Esc  */) {
 				scanf("%c", &file[i++]);
 			}
@@ -117,10 +139,10 @@ int main() {
 				sprintf(file, "%s\\Tree_%ld.txth", file, t);
 				goto Opening;
 			} else {
-				quit("Нажатие Esc");
+				quit("═рцрЄшх Esc");
 			}
 		} else {
-			quit("Не получено подтверждение");
+			quit("═х яюыєўхэю яюфЄтхЁцфхэшх");
 		}
 	}
 //	Prepare:;
@@ -138,19 +160,21 @@ int main() {
     	if (read(str, in))
     		cnt++;
     }
-    printf("Обнаружено %d файлов. Верно?\n", cnt);
+    sprintf(tmp, "╬сэрЁєцхэю %d Їрщыют. ┬хЁэю?\n", cnt);
+    printRusComment(tmp);
     c = getch();
     printf("%c\n", c);
-    if (c != 'y' && c != 'Y' && c != 'н' && c != 'Н' && c != 13) {
-    	printf("Не было получено разрешение начать\n");
+    if (c != 'y' && c != 'Y' && c != 'э' && c != '═' && c != 13) {
+    	printRusComment("═х с√ыю яюыєўхэю ЁрчЁх°хэшх эрўрЄ№\n");
     	goto Deleting;
 	}
 	Pathing:;
-	printf("ffmpeg.exe можно найти по адресу \"%s\"?\n", ffpath);
+	sprintf(tmp, "ffmpeg.exe ьюцэю эрщЄш яю рфЁхёє \"%s\"?\n", ffpath);
+	printRusComment(tmp);
 	c = getch();
     printf("%c\n", c);
-    if (c != 'y' && c != 'Y' && c != 'н' && c != 'Н' && c != 13) {
-    	printf("Напишите путь до ffmpeg.exe: ");
+    if (c != 'y' && c != 'Y' && c != 'э' && c != '═' && c != 13) {
+    	printRusComment("═ряш°шЄх яєЄ№ фю ffmpeg.exe: ");
     	read(ffpath, stdin);
     	goto Pathing;
 	}	
@@ -165,26 +189,27 @@ int main() {
     memset(str, 0, sizeof(str));
     sprintf(str, "mkdir \"Output %ld\"", t);
     if (system(str)) {
-    	printf("Ошибка при создании папки выходных файлов.\n");
+    	printRusComment("╬°шсър яЁш ёючфрэшш яряъш т√їюфэ√ї Їрщыют.\n");
     	goto Deleting;
 	}
 	Params:;
-	printf("Сейчас строка компиляции выглядит так: %s -i \"<filename>.%s\" %s \"Output %ld\\<filename>.%s\"\nИспользовать эту строку? "
-	       "В случае отказа (не Y или Enter) вам будет предложено ввести свою строку параметров; Esc - выход\n", ffpath, format1, param, t, format2);
+	sprintf(tmp, "╤хщўрё ёЄЁюър ъюьяшы Ўшш т√уы фшЄ Єръ: %s -i \"<filename>.%s\" %s \"Output %ld\\<filename>.%s\"\n╚ёяюы№чютрЄ№ ¤Єє ёЄЁюъє? "
+	       "┬ ёыєўрх юЄърчр (эх Y шыш Enter) трь сєфхЄ яЁхфыюцхэю ттхёЄш ётю■ ёЄЁюъє ярЁрьхЄЁют; Esc - т√їюф\n", ffpath, format1, param, t, format2);
+	printRusComment(tmp);
 	c = getch();
 	if (c == 27) {
 		printf("Esc\n");
 		goto FullDeleting;
 	} else
 		printf("%c\n", c);
-	if (c == 'n' || c == 'N' || c == 'т' || c == 'Т') {
-		printf("Введите новую строку параметров: ");
+	if (c == 'n' || c == 'N' || c == 'Є' || c == '╥') {
+		printRusComment("┬тхфшЄх эютє■ ёЄЁюъє ярЁрьхЄЁют: ");
 		read(param, stdin);
 		goto Params;
 	}
-	printf("Не выключать компьютер после завершения? (Esc, N - выключение)\n");
+	printRusComment("═х т√ъы■ўрЄ№ ъюья№■ЄхЁ яюёых чртхЁ°хэш ? (Esc, N - т√ъы■ўхэшх)\n");
 	c = getch();
-	if (c == 'n' || c == 27 || c == 'N' || c == 'т' || c == 'Т')
+	if (c == 'n' || c == 27 || c == 'N' || c == 'Є' || c == '╥')
 		off = 1;
 //	Work:;
     i = 0;
@@ -199,12 +224,13 @@ int main() {
     		system("cls");
     		StrClear(prof, strlen(format1) + 1); //prof - name
     		FFtry:;
-    		printf("%d из %d перекодированы, начинаем %d:\n", i, cnt, i + 1);
+    		sprintf(tmp, "%d шч %d яхЁхъюфшЁютрэ√, эрўшэрхь %d:\n", i, cnt, i + 1);
+    		printRusComment(tmp);
     		memset(str, 0, sizeof(str));
     		sprintf(str, "%s -i \"%s.%s\" %s \"Output %ld\\%s.%s\"", ffpath, prof, format1, param, t, prof, format2);
     		printf("%s\n", str);
     		if (system(str) && !u) {
-    			printf("Ошибка при работе ffmpeg'а. Нажмите R для повтора, Esc для выхода, любую клавишу для пропуска и U для пропуска всех ошибок данного типа\n");
+    			printRusComment("╬°шсър яЁш ЁрсюЄх ffmpeg'р. ═рцьшЄх R фы  яютЄюЁр, Esc фы  т√їюфр, ы■сє■ ъыртш°є фы  яЁюяєёър ш U фы  яЁюяєёър тёхї ю°шсюъ фрээюую Єшяр\n");
     			t1 = time(0);
     			c = 0;
     			while (time(0) - t1 < 20)
@@ -212,16 +238,16 @@ int main() {
 		    			c = getch();
 		    			if (c != 27)
 		    				printf("%c\n", c);
-						if (c == 'r' || c == 'R' || c == 'к' || c == 'К')
+						if (c == 'r' || c == 'R' || c == 'ъ' || c == '╩')
 							goto FFtry;
 						elif (c == 27) {
-							printf("Esc\nУдалить перекодированные на данный момент файлы и папку?\n");
+							printRusComment("Esc\n╙фрышЄ№ яхЁхъюфшЁютрээ√х эр фрээ√щ ьюьхэЄ Їрщы√ ш яряъє?\n");
 							c = getch();
-							if (c == 'y' || c == 'Y' || c == 'н' || c == 'Н' || c == 13)
+							if (c == 'y' || c == 'Y' || c == 'э' || c == '═' || c == 13)
 								goto FullDeleting;
 							else
 								goto Deleting;
-						} elif (c == 'u' || c == 'U' || c == 'г' || c == 'Г')
+						} elif (c == 'u' || c == 'U' || c == 'у' || c == '├')
 							u = 1;
 						c = 1;
 					}
@@ -231,7 +257,8 @@ int main() {
     			i++;
     	}
     }
-    printf("%d из %d были перекодированы без ошибок (или с их авто-игнорированием)\n", i, cnt);
+    sprintf(tmp, "%d шч %d с√ыш яхЁхъюфшЁютрэ√ схч ю°шсюъ%s\n", i, cnt, (u) ? " (шыш ё шї ртЄю-шуэюЁшЁютрэшхь)" : "");
+	printRusComment(tmp);
     if (0) {
     	FullDeleting:;
     	sprintf(str, "rmdir \"Output %ld\" /Q /S", t);
@@ -243,9 +270,9 @@ int main() {
 	StrCat(str, "del ");
 	StrCat(str, file);
 	if (!system(str)) {
-		quit("Временный файл был удален");
+		quit("┬Ёхьхээ√щ Їрщы с√ы єфрыхэ");
 	} else {
-		quit("Ошибка при удалении временного файла");
+		quit("╬°шсър яЁш єфрыхэшш тЁхьхээюую Їрщыр");
 	}
 	return 0;
 }
