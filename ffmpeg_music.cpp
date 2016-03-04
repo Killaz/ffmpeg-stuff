@@ -14,6 +14,16 @@
 	} \
 	system("pause"); \
 	return 0;
+
+#define printHelp() \
+	printf("[-param <string>] or [-param \"<string with spaces>\"] - give parameters to ffmpeg\n" \
+	       "[-formats <format_from> <format_to>] - set coding from format_from into format_to\n" \
+	       "[-ffpath <string>] or [-ffpath <string with spaces>\"] - set ffmpeg.exe's directory\n" \
+	       "[-off] - turns off computer after finishing\n" \
+	       "[-u] - skip errors automaticly (automaticly turned on with [-off])\n" \
+	       "[-dirs *<string> [string] .. *] - set directories where ffmpeg with these parameters will be started\n" \
+	      );
+
 #define lol() printf("Lol\n")
 
 char format1[9] = "mp3", format2[9] = "mp3";
@@ -90,7 +100,7 @@ bool read(char *s, FILE *f) {
 	return StrCompare(s, format1, strlen(s) - strlen(format1));
 }
 
-bool parseStrings(char **args, char *where, int &from, int len, char startSymb, char finishSymb) {
+bool mergeStrings(char **args, char *where, int &from, int len, char startSymb, char finishSymb) {
 	if (from >= len)
 		return 0;
 	where[0] = 0;
@@ -112,11 +122,17 @@ bool parseStrings(char **args, char *where, int &from, int len, char startSymb, 
 	return 0;
 }
 
+char **parseString(char *s, char startSybm, char finishSymb) {
+	char **ans;
+	return ans;
+}
+
 int main(int argc, char *argv[]) {
 	bool u = 0, off = 0, user = 1;
 	int i, cnt;
 	char c = 0, prof[90], file[90], str[250], ffpath[90] = "C:\\ffmpeg\\bin\\ffmpeg.exe", param[120] = "-map 0:a -b:a 112k -ac 2", tmp[800];
 	time_t t, t1;
+	char **dirs;
 	FILE *in = NULL;
 //	Init:;
     t = time(0);
@@ -130,16 +146,23 @@ int main(int argc, char *argv[]) {
 		if (strCmp(argv[i], "-u"))
 			u = 1;
 		elif (strCmp(argv[i], "-param"))
-			parseStrings(argv, param, ++i, argc, '"', '"');
+			mergeStrings(argv, param, ++i, argc, '"', '"');
 		elif (strCmp(argv[i], "-formats")) {
-			parseStrings(argv, format1, ++i, argc, '"', '"');
-			parseStrings(argv, format2, ++i, argc, '"', '"');
+			mergeStrings(argv, format1, ++i, argc, '"', '"');
+			mergeStrings(argv, format2, ++i, argc, '"', '"');
 		} elif (strCmp(argv[i], "-user"))
 			user = 0, u = 1;
-		elif (strCmp(argv[i], "-off"))
+		elif (strCmp(argv[i], "-help")) {
+			printHelp();
+			return 0;
+		} elif (strCmp(argv[i], "-off"))
 			off = 1;
+		elif (strCmp(argv[i], "-dirs")) {
+			mergeStrings(argv, tmp, ++i, argc, '*', '*');
+			dirs = parseString(tmp, '"', '"');
+		}
 		elif (strCmp(argv[i], "-ffpath"))
-			parseStrings(argv, ffpath, ++i, argc, '"', '"');
+			mergeStrings(argv, ffpath, ++i, argc, '"', '"');
 	}
 //	printf("u = %d\nparams: %s\nformats = %s -> %s\nuser = %d\noff = %d\nffpath = %s\n", (int) u,
 //           param, format1, format2, (int) user, (int) off, ffpath);
