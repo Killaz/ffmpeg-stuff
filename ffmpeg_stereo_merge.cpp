@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "ffmpeg_prog.h"
+
 #define elif else if
 #define quit(a) \
 	printf("%s; Завершение программы.\n", a); \
@@ -22,97 +24,6 @@
 
 char format[9] = "";
 
-void StrCat(char *where, char *from) {
-	int i = 0, j = 0;
-	while (where[i] != 0)
-		i++;
-	do {
-		where[i++] = from[j++];
-	} while (from[j] != 0);
-}
-// Сравнивает строку where со строкой from,начиная с from-того символа
-bool StrCompare(const char *where, const char *what, int from) {
-	int len = strlen(what), len1 = strlen(where);
-	for (int i = 0; i < len; i++) {
-		if (from + i >= len1 || where[from + i] != what[i])
-			return 0;
-	}
-	return 1;
-}
-
-// Сравнивает сроку s1 со строкой s2
-bool strCmp(const char *s1, const char *s2) {
-	int len = strlen(s1);
-	if (len != (int) strlen(s2))
-		return 0;
-	for (int i = 0; i < len; i++)
-		if (s1[i] != s2[i])
-			return 0;
-	return 1;
-}
-
-// Отрезатет от конца строки from hmuch символов
-bool StrClear(char *from, int hmuch) {
-	int len = strlen(from);
-	if (len < hmuch)
-		return 0;
-	for (int i = len - hmuch; i < len; i++)
-		from[i] = 0;
-	return 1;
-}
-
-// Возвращает 1, если есть формат файла, и , если его нет.
-// В первом случае заменяет строку format на данный формат.
-bool Analize(char *from) {
-	memset(format, 0, sizeof(format));
-	for (int i = strlen(from) - 1; i > 0; i--)
-		if (from[i] == '.') {
-			StrCat(format, from + i + 1);
-			StrClear(from, strlen(format) + 1);
-			return 1;
-		}
-	return 0;
-}
-
-// Читает строку до переноса строки
-bool read(char *s, FILE *f) {
-	int i = 0;
-	while (1) {
-		fscanf(f, "%c", &s[i]);
-		if (s[i] == '\n') {
-			s[i] = 0;
-			break;
-		} else
-			i++;
-	}
-	return StrCompare(s, format, strlen(s) - strlen(format));
-}
-
-// Склеить строки из args[] в where, начиная с from-того и заканчивая len-тым элементом args[],
-// если они находятся между стартовым и конечным символами, либо первый символ - не стартовый. from меняется.
-bool mergeStrings(char **args, char *where, int &from, int len, char startSymb, char finishSymb) {
-	if (from >= len)
-		return 0;
-	where[0] = 0;
-	if (args[from][0] != startSymb) {
-		StrCat(where, args[from]);
-		return 1;
-	}
-	StrCat(where, &args[from++][1]);
-	for (; from < len; from++) {
-		int lenWhere = strlen(where);
-		if (where[lenWhere - 1] == finishSymb) {
-			StrClear(where, 1);
-			return 1;
-		}
-		where[lenWhere++] = ' ';
-		where[lenWhere++] = 0;
-		StrCat(where, args[from]);
-	}
-	where[strlen(where) - 1] = 0;
-	return 0;
-}
-
 int main(int argc, char *argv[]) {
 	char c = 0, tmp, file1[120], file2[120], str[350], ffpath[90] = "C:\\ffmpeg\\bin\\ffmpeg.exe", param[120] = "-q:v 1";
 	bool u = 0;     // skip-parameter
@@ -126,14 +37,15 @@ int main(int argc, char *argv[]) {
 	system("cls");
 // Разбор строки параметров
 	for (i = 1; i < argc; i++) {
-		if (strCmp(argv[i], "endless"))
+		if (StrCmp(argv[i], "endless"))
 			u = 1, printf("endless: on\n");
-		elif (StrCmp(argv[i]. "ffpath"))
+		elif (StrCmp(argv[i], "ffpath"))
 			if (i < argc - 1)
 				StrCat(ffpath, argv[++i]);
 			else
 				printf("ffpath-parameter is used without path. Ignored.\n");
-		elif (Analize(argv[i]) || argv[i][0] == '"') {
+		elif (Analize(argv[i], format) || argv[i][0] == '"') {
+			StrClear(argv[i], strlen(format) + 1);
 			if (first == 0)
 				StrCat(file1, argv[i]), first = 1;
 			elif (first == 1)
@@ -159,18 +71,19 @@ int main(int argc, char *argv[]) {
 	read(file1, stdin);
 
 	//search of commands:
-	if (strCmp(file1, "endless")) {
+	if (StrCmp(file1, "endless")) {
 		u ^= 1, printf("endless: %s\n", u ? "on" : "off");
 		goto Opening;
-	} elif (strCmp(file1, "exit")) {
+	} elif (StrCmp(file1, "exit")) {
 		return 0;
-	} elif (strCmp(file1, "help")) {
+	} elif (StrCmp(file1, "help")) {
 		printHelp();
 		goto Opening;
-	} elif (!Analize(file1)) {
+	} elif (!Analize(file1, format)) {
 		printf("Unknown command (or file without type): %s\n", file1);
 		goto Opening;
-	}
+	} else
+		StrClear(file1, strlen(format) + 1);
 
 	SecondFile:;
 	printf("Введите путь до изображения для правого глаза: ");

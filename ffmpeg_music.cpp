@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "ffmpeg_prog.h"
+
 #define elif else if
 #define quit(a) \
 	printf("%s; Завершение программы.\n", a); \
@@ -23,65 +25,11 @@
 	       "[-ffpath <string>] or [-ffpath <string with spaces>\"] - set ffmpeg.exe's directory\n" \
 	       "[-off] - turns off computer after finishing\n" \
 	       "[-u] - skip errors automaticly (automaticly turned on with [-off])\n" \
-	       "[-dirs *<string> [string] .. *] - set directories where ffmpeg with these parameters will be started\n" \
 	      );
 
 #define lol() printf("Lol\n")
 
 char format1[9] = "mp3", format2[9] = "mp3";
-
-void StrCat(char *where, const char *from) {
-	int i = 0, j = 0;
-	while (where[i] != 0)
-		i++;
-	do {
-		where[i++] = from[j++];
-	} while (from[j] != 0);
-}
-
-// Сравнивает строку where со строкой from,начиная с from-того символа
-bool StrCompare(const char *where, const char *what, int from) {
-	int len = strlen(what), len1 = strlen(where);
-	for (int i = 0; i < len; i++) {
-		if (from + i >= len1 || where[from + i] != what[i])
-			return 0;
-	}
-	return 1;
-}
-
-// Сравнивает сроку s1 со строкой s2
-bool strCmp(const char *s1, const char *s2) {
-	int len = strlen(s1);
-	if (len != (int) strlen(s2))
-		return 0;
-	for (int i = 0; i < len; i++)
-		if (s1[i] != s2[i])
-			return 0;
-	return 1;
-}
-
-// Отрезать от конца строки from hmuch символов
-bool StrClear(char *from, int hmuch) {
-	int len = strlen(from);
-	if (len < hmuch)
-		return 0;
-	for (int i = len - hmuch; i < len; i++)
-		from[i] = 0;
-	return 1;
-}
-
-bool read(char *s, FILE *f) {
-	int i = 0;
-	while (1) {
-		fscanf(f, "%c", &s[i]);
-		if (s[i] == '\n') {
-			s[i] = 0;
-			break;
-		} else
-			i++;
-	}
-	return StrCompare(s, format1, strlen(s) - strlen(format1));
-}
 
 // Склеить строки из args[] в where, начиная с from-того и заканчивая len-тым элементом args[],
 // если они находятся между стартовым и конечным символами, либо первый символ - не стартовый. from меняется.
@@ -127,21 +75,21 @@ int main(int argc, char *argv[]) {
 
 	// Разбор строки параметров
 	for (i = 1; i < argc; i++) {
-		if (strCmp(argv[i], "-u"))
+		if (StrCmp(argv[i], "-u"))
 			u = 1;
-		elif (strCmp(argv[i], "-param"))
+		elif (StrCmp(argv[i], "-param"))
 			mergeStrings(argv, param, ++i, argc, '"', '"');
-		elif (strCmp(argv[i], "-formats")) {
+		elif (StrCmp(argv[i], "-formats")) {
 			mergeStrings(argv, format1, ++i, argc, '"', '"');
 			mergeStrings(argv, format2, ++i, argc, '"', '"');
-		} elif (strCmp(argv[i], "-user"))
+		} elif (StrCmp(argv[i], "-user"))
 			user = 0, u = 1;
-		elif (strCmp(argv[i], "-help")) {
+		elif (StrCmp(argv[i], "-help")) {
 			printHelp();
 			return 0;
-		} elif (strCmp(argv[i], "-off"))
+		} elif (StrCmp(argv[i], "-off"))
 			off = 1;
-		elif (strCmp(argv[i], "-ffpath"))
+		elif (StrCmp(argv[i], "-ffpath"))
 			mergeStrings(argv, ffpath, ++i, argc, '"', '"');
 	}
 
@@ -209,7 +157,8 @@ int main(int argc, char *argv[]) {
     	fscanf(in, "%c%*c%*c%*c", &c);
     	if (c != '|' && c != ' ')
     		break;
-    	if (read(str, in))
+    	read(str, in);
+    	if (StrCompare(str, format1, strlen(str) - strlen(format1)))
     		cnt++;
     }
     if (user) {
@@ -275,7 +224,8 @@ int main(int argc, char *argv[]) {
     		printf("%c%s %s\n", c, str, prof);
     		break;
 		}
-    	if (read(prof, in)) {                    //prof - name.format
+		read(prof, in);
+    	if (StrCompare(prof, format1, strlen(prof) - strlen(format1))) {                    //prof - name.format
     		system("cls");
     		StrClear(prof, strlen(format1) + 1); //prof - name
     		FFtry:;
