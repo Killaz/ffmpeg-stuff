@@ -59,17 +59,15 @@ bool mergeStrings(char **args, char *where, int &from, int len, char startSymb, 
 int main(int argc, char *argv[]) {
 	bool u = 0, off = 0, user = 1;
 	int i, cnt;
-	char c = 0, prof[90], file[90], str[250], ffpath[90], param[80] = "-map 0:a -b:a 112k -ac 2";// = "C:\\ffmpeg\\bin\\ffmpeg.exe";
+	char c = 0, prof[140], file[150], str[280], ffpath[140], param[140] = "-map 0:a -b:a 112k -ac 2";// = "C:\\ffmpeg\\bin\\ffmpeg.exe";
 	time_t t, t1;
 	FILE *in;
 //	Init:;
     t = time(0);
 	memset(ffpath, 0, sizeof(ffpath));
 	StrCat(ffpath, "C:\\ffmpeg\\bin\\ffmpeg.exe");
-	memset(prof, 0, sizeof(prof));
-	StrCat(prof, getenv("USERPROFILE"));
 	memset(file, 0, sizeof(file));
-	sprintf(file, "%s\\Documents\\Tree_%I64d.txth", prof, t);
+	sprintf(file, "dir_%I64d.txth", t);
 //	Start:
 	system("cls");
 
@@ -116,13 +114,13 @@ int main(int argc, char *argv[]) {
 	}
 	Opening:;
 	memset(str, 0, sizeof(str));
-	StrCat(str, "tree /f /a >> ");
+	StrCat(str, "dir /B /A-D >> ");
 	StrCat(str, file);
 	system(str);
 	if ((in = fopen(file, "rt")) == NULL) {
-		fclose(stdin);
+//		fclose(stdin);
 		printf("Отказано в доступе к папке для создания временного файла. Нажмите 'Y', если хотите ввести путь "
-		       "к папке с доступом, и любую другую клавишу в другом случае.\n");
+		       "к папке с доступом, или любую другую клавишу в другом случае.\n");
 		if (!user)
 			return 1;
 		c = getch();
@@ -147,17 +145,8 @@ int main(int argc, char *argv[]) {
 	}
 //	Prepare:;
 	i = 0;
-    while (i < 3) {
-    	fscanf(in, "%c", &c);
-    	if (c == '\n')
-    		i++;
-    }
     cnt = 0;
-    while (1) {
-    	fscanf(in, "%c%*c%*c%*c", &c);
-    	if (c != '|' && c != ' ')
-    		break;
-    	read(str, in);
+    while (read(str, in)) {
     	if (StrCompare(str, format1, strlen(str) - strlen(format1)))
     		cnt++;
     }
@@ -184,11 +173,6 @@ int main(int argc, char *argv[]) {
 //	Last_prepare:;
 	rewind(in);
     i = 0;
-    while (i < 3) {
-    	fscanf(in, "%c", &c);
-    	if (c == '\n')
-    		i++;
-    }
     memset(str, 0, sizeof(str));
     sprintf(str, "mkdir \"Output %I64d\"", t);
     if (system(str)) {
@@ -218,12 +202,6 @@ int main(int argc, char *argv[]) {
 	//	Work:;
     i = 0;
     while (1) {
-    	fscanf(in, "%c%*c%*c%*c", &c);
-    	if (c != '|' && c != ' ') {              //Completed (?)
-    		fscanf(in, "%s%s", str, prof);
-    		printf("%c%s %s\n", c, str, prof);
-    		break;
-		}
 		read(prof, in);
     	if (StrCompare(prof, format1, strlen(prof) - strlen(format1))) {                    //prof - name.format
     		system("cls");
@@ -234,7 +212,7 @@ int main(int argc, char *argv[]) {
     		sprintf(str, "%s -i \"%s.%s\" %s \"Output %I64d\\%s.%s\"", ffpath, prof, format1, param, t, prof, format2);
     		printf("%s\n", str);
     		if (system(str) && !u) {
-    			printf("Ошибка при работе ffmpeg'а. Нажмите R для повтора, Esc для выхода, любую клавишу для пропуска и U для пропуска всех ошибок данного типа\n");
+    			printf("Ошибка при работе ffmpeg'а. Нажмите R для повтора, Esc для выхода, любую клавишу для пропуска и U для пропуска всех ошибок\n");
     			t1 = time(0);
     			c = 0;
     			while (time(0) - t1 < 20)

@@ -50,16 +50,24 @@ bool StrClear(char *from, int hmuch) {
 	return 1;
 }
 
-void read(char *s, FILE *f) {
+bool read(char *s, FILE *f) {
 	int i = 0;
+	if (f == NULL)
+		return 0;
+	else
 	while (1) {
-		fscanf(f, "%c", &s[i]);
+		if (fscanf(f, "%c", &s[i]) < 1)
+			break;
 		if (s[i] == '\n') {
 			s[i] = 0;
 			break;
 		} else
 			i++;
 	}
+	if (i == 0)
+		return 0;
+	else
+		return 1;
 }
 
 // Возвращает 1, если есть формат файла, и , если его нет.
