@@ -201,13 +201,14 @@ int main(int argc, char *argv[]) {
 	}
 	//	Work:;
     i = 0;
-    while (1) {
-		read(prof, in);
-    	if (StrCompare(prof, format1, strlen(prof) - strlen(format1))) {                    //prof - name.format
+    while (read(prof, in)) {
+    	if (StrCompare(prof, format1, strlen(prof) - strlen(format1))) {         //prof - name.format
     		system("cls");
-    		StrClear(prof, strlen(format1) + 1); //prof - name
+    		StrClear(prof, strlen(format1) + 1);                                 //prof - name
     		FFtry:;
     		printf("%d из %d перекодированы, начинаем %d:\n", i, cnt, i + 1);
+    		sprintf(str, "title \"now %d of %d\"", i + 1, cnt);
+    		system(str);
     		memset(str, 0, sizeof(str));
     		sprintf(str, "%s -i \"%s.%s\" %s \"Output %I64d\\%s.%s\"", ffpath, prof, format1, param, t, prof, format2);
     		printf("%s\n", str);
