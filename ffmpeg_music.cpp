@@ -265,6 +265,8 @@ int main(int argc, char *argv[]) {
 			fclose(in);
 			system("rm shutdown.yes");
 		}
+	sprintf(str, "title \"Finished\"");
+	system(str);
 	memset(str, 0, sizeof(str));
 	StrCat(str, "del ");
 	StrCat(str, file);

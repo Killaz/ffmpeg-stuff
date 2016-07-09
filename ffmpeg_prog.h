@@ -19,7 +19,7 @@ void StrCatN(char *where, char *from, int start, int finish) {
 	where[i] = 0;
 }
 
-// Сравнивает сроку s1 со строкой s2
+// ‘а ў­Ёў Ґв ба®Єг s1 б® бва®Є®© s2
 bool StrCmp(const char *s1, const char *s2) {
 	int len = strlen(s1);
 	if (len != (int) strlen(s2))
@@ -30,7 +30,7 @@ bool StrCmp(const char *s1, const char *s2) {
 	return 1;
 }
 
-// Сравнивает строку where со строкой from,начиная с from-того символа
+// ‘а ў­Ёў Ґв бва®Єг where б® бва®Є®© from,­ зЁ­ п б from-в®Ј® бЁ¬ў®« 
 bool StrCompare(const char *where, const char *what, int from) {
 	int len = strlen(what), len1 = strlen(where);
 	for (int i = 0; i < len; i++) {
@@ -40,7 +40,7 @@ bool StrCompare(const char *where, const char *what, int from) {
 	return 1;
 }
 
-// Отрезатет от конца строки from hmuch символов
+// ЋваҐ§ вҐв ®в Є®­ж  бва®ЄЁ from hmuch бЁ¬ў®«®ў
 bool StrClear(char *from, int hmuch) {
 	int len = strlen(from);
 	if (len < hmuch)
@@ -70,8 +70,8 @@ bool read(char *s, FILE *f) {
 		return 1;
 }
 
-// Возвращает 1, если есть формат файла, и 0, если его нет.
-// В первом случае заменяет строку format на данный формат.
+// ‚®§ўа й Ґв 1, Ґб«Ё Ґбвм д®а¬ в д ©« , Ё 0, Ґб«Ё ҐЈ® ­Ґв.
+// ‚ ЇҐаў®¬ б«гз Ґ § ¬Ґ­пҐв бва®Єг format ­  ¤ ­­л© д®а¬ в.
 bool Analize(char *from, char *format) {
 	memset(format, 0, sizeof(format));
 	for (int i = strlen(from) - 1; i > 0; i--)
@@ -84,13 +84,13 @@ bool Analize(char *from, char *format) {
 
 void NormalRus(char *s) {
 	for (size_t i = 0; i < strlen(s); i++) {
-		if ((s[i] >= 'А'&& s[i] <= 'Я') || (s[i] >= 'а' && s[i] <= 'п'))
+		if ((s[i] >= 'Ђ' && s[i] <= 'џ') || (s[i] >= ' ' && s[i] <= 'Ї'))
 			s[i] -= 192;
-		else if (s[i] >= 'р' && s[i] <= 'я')
+		else if (s[i] >= 'а' && s[i] <= 'п')
 			s[i] -= 240;
-		else if (s[i] == 'ё')
+		else if (s[i] == 'с')
 			s[i] -= 57;
-		else if (s[i] == 'Ё')
+		else if (s[i] == 'р')
 			s[i] -= 72;
 	}
 }
