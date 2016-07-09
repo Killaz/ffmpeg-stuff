@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "ffmpeg_programms/ffmpeg_prog.h"
+#include "ffmpeg_prog.h"
 
 #define elif else if
 #define quit(a) \
