@@ -70,7 +70,7 @@ bool read(char *s, FILE *f) {
 		return 1;
 }
 
-// Возвращает 1, если есть формат файла, и , если его нет.
+// Возвращает 1, если есть формат файла, и 0, если его нет.
 // В первом случае заменяет строку format на данный формат.
 bool Analize(char *from, char *format) {
 	memset(format, 0, sizeof(format));
@@ -80,5 +80,18 @@ bool Analize(char *from, char *format) {
 			return 1;
 		}
 	return 0;
+}
+
+void NormalRus(char *s) {
+	for (size_t i = 0; i < strlen(s); i++) {
+		if ((s[i] >= 'А'&& s[i] <= 'Я') || (s[i] >= 'а' && s[i] <= 'п'))
+			s[i] -= 192;
+		else if (s[i] >= 'р' && s[i] <= 'я')
+			s[i] -= 240;
+		else if (s[i] == 'ё')
+			s[i] -= 57;
+		else if (s[i] == 'Ё')
+			s[i] -= 72;
+	}
 }
 #endif

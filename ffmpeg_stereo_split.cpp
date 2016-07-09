@@ -150,12 +150,14 @@ int main(int argc, char *argv[]) {
 	sprintf(str, "%s -i %s.%s -filter_complex \"[0:v]crop=iw/2:ih:0:0\" %s %s-%s.%s", 
 	        ffpath, file1, format, param, file2, rev ? "left" : "right", format);
 	printf("%s\n", str);
+	NormalRus(str);
 	if (system(str)) {
 		quit("Ошибка при работе ffmpeg'а - создание первого файла");
 	}
 	sprintf(str, "%s -i %s.%s -filter_complex \"[0:v]crop=iw/2:ih:iw/2:0\" %s %s-%s.%s",
 	        ffpath, file1, format, param, file2, rev ? "right" : "left", format);
 	printf("\nSTART: %s\n", str);
+	NormalRus(str);
 	if (system(str)) {
 		quit("Ошибка при работе ffmpeg'а - создание первого файла");
 	}

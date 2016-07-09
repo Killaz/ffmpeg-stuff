@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "ffmpeg_prog.h"
+#include "ffmpeg_programms/ffmpeg_prog.h"
 
 #define elif else if
 #define quit(a) \
@@ -109,6 +109,7 @@ int main(int argc, char *argv[]) {
 		if (c != 'y' && c != 'Y' && c != 'н' && c != 'Н' && c != 13) {
 			printf("Введите расширение (например, \"flac mp3\", \"wma m4a\" без кавычек): ");
 			scanf("%s %s", format1, format2);
+			getchar();                                                  // magic, eats Enter
 			goto Format;
 		}
 	}
@@ -187,12 +188,13 @@ int main(int argc, char *argv[]) {
 		if (c == 27) {
 			printf("Esc\n");
 			goto FullDeleting;
-		} else
+		} else {
 			printf("%c\n", c);
-		if (c == 'n' || c == 'N' || c == 'т' || c == 'Т') {
-			printf("Введите новую строку параметров: ");
-			read(param, stdin);
-			goto Params;
+			if (c == 'n' || c == 'N') {
+				printf("Введите новую строку параметров: ");
+				read(param, stdin);
+				goto Params;
+			}
 		}
 		printf("Не выключать компьютер после завершения? (Esc, N - выключение)\n");
 		c = getch();
@@ -212,6 +214,7 @@ int main(int argc, char *argv[]) {
     		memset(str, 0, sizeof(str));
     		sprintf(str, "%s -i \"%s.%s\" %s \"Output %I64d\\%s.%s\"", ffpath, prof, format1, param, t, prof, format2);
     		printf("%s\n", str);
+    		NormalRus(str);
     		if (system(str) && !u) {
     			printf("Ошибка при работе ffmpeg'а. Нажмите R для повтора, Esc для выхода, любую клавишу для пропуска и U для пропуска всех ошибок\n");
     			t1 = time(0);
@@ -226,12 +229,14 @@ int main(int argc, char *argv[]) {
 						elif (c == 27) {
 							printf("Esc\nУдалить перекодированные на данный момент файлы и папку?\n");
 							c = getch();
-							if (c == 'y' || c == 'Y' || c == 'н' || c == 'Н' || c == 13)
+							if (c == 'y' || c == 'Y' || c == 13)
 								goto FullDeleting;
 							else
 								goto Deleting;
-						} elif (c == 'u' || c == 'U' || c == 'г' || c == 'Г')
+						} elif (c == 'u' || c == 'U')
 							u = 1;
+						else
+							break;
 						c = 1;
 					}
 				if (c == 0)
@@ -240,7 +245,7 @@ int main(int argc, char *argv[]) {
     			i++;
     	}
     }
-    printf("%d из %d были перекодированы без ошибок (или с их авто-игнорированием)\n", i, cnt);
+    printf("%d из %d\n", i, cnt);
     if (0) {
     	FullDeleting:;
     	sprintf(str, "rmdir \"Output %I64d\" /Q /S", t);
@@ -248,6 +253,18 @@ int main(int argc, char *argv[]) {
     }
 	Deleting:;
 	fclose(in);
+	if (off) {
+		if ((in = fopen("shutdown.no", "rt")) != NULL) {
+			off = 0;
+			fclose(in);
+			system("rm shutdown.no");
+		}
+	} else
+		if ((in = fopen("shutdown.yes", "rt")) != NULL) {
+			off = 1;
+			fclose(in);
+			system("rm shutdown.yes");
+		}
 	memset(str, 0, sizeof(str));
 	StrCat(str, "del ");
 	StrCat(str, file);

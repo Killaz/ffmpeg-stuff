@@ -157,6 +157,7 @@ int main(int argc, char *argv[]) {
 	sprintf(str, "%s -i %s.%s -i %s.%s -filter_complex \"[0:v]pad=iw*2:ih[bg]; [bg][1:v]overlay=w,colorlevels=rimin=0.082:"
 	             "gimin=0.082:bimin=0.082:rimax=0.9:gimax=0.9:bimax=0.9\" %s %s-all.%s", ffpath, file2, format, file1, format, param, file1, format);
 	printf("%s\n", str);
+	NormalRus(str);
 	if (system(str)) {
 		printf("Ошибка при работе ffmpeg'а.");
 		if (u) {
