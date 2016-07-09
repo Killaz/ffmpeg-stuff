@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
     		StrClear(prof, strlen(format1) + 1);                                 //prof - name
     		FFtry:;
     		printf("%d из %d перекодированы, начинаем %d:\n", i, cnt, i + 1);
-    		sprintf(str, "title \"now %d of %d\"", i + 1, cnt);
+    		sprintf(str, "title \"now %d of %d; %s\"", i + 1, cnt, off ? "Will turn off" : "");
     		system(str);
     		memset(str, 0, sizeof(str));
     		sprintf(str, "%s -i \"%s.%s\" %s \"Output %I64d\\%s.%s\"", ffpath, prof, format1, param, t, prof, format2);
