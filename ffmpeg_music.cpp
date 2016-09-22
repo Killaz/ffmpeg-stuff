@@ -59,7 +59,7 @@ bool mergeStrings(char **args, char *where, int &from, int len, char startSymb, 
 int main(int argc, char *argv[]) {
 	bool u = 0, off = 0, user = 1;
 	int i, cnt;
-	char c = 0, prof[140], file[150], str[280], ffpath[140], param[140] = "-map 0:a -b:a 112k -ac 2";// = "C:\\ffmpeg\\bin\\ffmpeg.exe";
+	char c = 0, prof[140], file[180], str[600], ffpath[140], param[400] = "-map 0:a -b:a 112k -ac 2";// = "C:\\ffmpeg\\bin\\ffmpeg.exe";
 	time_t t, t1;
 	FILE *in;
 //	Init:;
@@ -106,11 +106,13 @@ int main(int argc, char *argv[]) {
 		printf("Будут перегоняться файлы из *.%s в *.%s?\n", format1, format2);
 		c = getch();
 		printf("%c\n", c);
-		if (c != 'y' && c != 'Y' && c != 'н' && c != 'Н' && c != 13) {
+		if (c != 'y' && c != 'Y' && c != 13 && c != 27) {
 			printf("Введите расширение (например, \"flac mp3\", \"wma m4a\" без кавычек): ");
 			scanf("%s %s", format1, format2);
 			getchar();                                                  // magic, eats Enter
 			goto Format;
+		} else if (c == 27) {
+			quit("Нажатие Esc");
 		}
 	}
 	Opening:;
@@ -209,7 +211,7 @@ int main(int argc, char *argv[]) {
     		StrClear(prof, strlen(format1) + 1);                                 //prof - name
     		FFtry:;
     		printf("%d из %d перекодированы, начинаем %d:\n", i, cnt, i + 1);
-    		sprintf(str, "title \"now %d of %d; %s\"", i + 1, cnt, off ? "Will turn off" : "");
+    		sprintf(str, "title \"now %d of %d%s\"", i + 1, cnt, off ? "; Will turn off" : "");
     		system(str);
     		memset(str, 0, sizeof(str));
     		sprintf(str, "%s -i \"%s.%s\" %s \"Output %I64d\\%s.%s\"", ffpath, prof, format1, param, t, prof, format2);
@@ -246,11 +248,12 @@ int main(int argc, char *argv[]) {
     	}
     }
     printf("%d из %d\n", i, cnt);
-    if (0) {
+    if (i == 0) {
     	FullDeleting:;
     	sprintf(str, "rmdir \"Output %I64d\" /Q /S", t);
 		system(str);
-    }
+    } else
+    	printf("%s -i \"%s.%s\" %s \"Output %I64d\\%s.%s\"\n", ffpath, prof, format1, param, t, prof, format2);
 	Deleting:;
 	fclose(in);
 	if (off) {
