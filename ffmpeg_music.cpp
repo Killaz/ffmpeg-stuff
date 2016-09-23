@@ -245,6 +245,7 @@ int main(int argc, char *argv[]) {
 					u = 1, i++;
 	    	} else
     			i++;
+			printf(">> %s -i \"%s.%s\" %s \"Output %I64d\\%s.%s\"\n", ffpath, prof, format1, param, t, prof, format2);
     	}
     }
     printf("%d из %d\n", i, cnt);
@@ -252,8 +253,7 @@ int main(int argc, char *argv[]) {
     	FullDeleting:;
     	sprintf(str, "rmdir \"Output %I64d\" /Q /S", t);
 		system(str);
-    } else
-    	printf("%s -i \"%s.%s\" %s \"Output %I64d\\%s.%s\"\n", ffpath, prof, format1, param, t, prof, format2);
+    }
 	Deleting:;
 	fclose(in);
 	if (off) {
