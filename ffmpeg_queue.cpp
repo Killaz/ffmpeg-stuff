@@ -26,8 +26,8 @@
 
 #define printHelp() \
 	printf("[-ffpath <string>] or [-ffpath <string with spaces>\"] - set path to ffmpeg's .exe file\n" \
-	       "[-insign <string>] - set \"-i\" to something different (empty for example, for use not with ffmpeg)\n" \
-	       "[-outsign <string>] - set empty string before path to output file to something else\n" \
+	       "[-inSign <string>] - set \"-i\" to something different (empty for example, for use not with ffmpeg)\n" \
+	       "[-outSign <string>] - set empty string before path to output file to something else\n" \
 	       "[-formats <format_in>,<format_out>] or [-formats \"format_in, format_out\"] or [-formats <format_in-out>]\n" \
 	       "     - set coding from format_in to format_out\n" \
 	       "[-inParams <string>] or [-inParams \"<string with spaces>\"] - give input files parameters to ffmpeg\n" \
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 	unsigned long long t, t1;
 	FILE *in;
 	Init:;
-    t = (unsigned long long) time(0);
+	t = (unsigned long long) time(0);
 	sprintf(file, "dir_%I64u.txth", t);
 //	Start:
 	system("cls");
@@ -140,7 +140,12 @@ int main(int argc, char *argv[]) {
 					StrCat(format_in, argv[i]), StrCat(format_out, argv[i]);
 				else {
 					StrCatN(format_in, argv[i], comma);
-					StrCatN(format_out, argv[i], comma + 2, strlen(argv[i]));
+					for (size_t j = comma + 1; j < strlen(argv[i]); j++)
+						if (argv[i][j] != ' ') {
+							comma = j;
+							break;
+						}
+					StrCatN(format_out, argv[i], comma, strlen(argv[i]));
 				}
 			} elif (StrCmp(command, "-nouser") || StrCmp(command, "/nouser"))
 			user = 0, skip = 1;
@@ -162,11 +167,11 @@ int main(int argc, char *argv[]) {
 				system("pause");
 			}
 		}
-		if (repairPaths && !StrCompare(outDir, ":\\", 1)) {
+		if (repairPaths && !StrCompare(inDir, ":\\", 1) && inDir[0] != '%') {
 			sprintf(str, "%s%s", cd, inDir);
 			StrCopy(inDir, str);
 		}
-		if (repairPaths && !StrCompare(outDir, ":\\", 1)) {
+		if (repairPaths && !StrCompare(outDir, ":\\", 1) && outDir[0] != '%') {
 			if (overrideOutDir) {
 				sprintf(str, "%s%s", inDir, outDir);
 				StrCopy(outDir, str);
@@ -200,8 +205,7 @@ int main(int argc, char *argv[]) {
 		}
 	}*/
 	Opening:;
-	sprintf(str, "dir %s /B /A-D >> ", inDir);
-	StrCat(str, file);
+	sprintf(str, "dir \"%s\" /B /A-D >> %s", inDir, file);
 	system(str);
 	if ((in = fopen(file, "rt")) == NULL) { // never has been tested, lol
 //		fclose(stdin);
@@ -314,7 +318,7 @@ int main(int argc, char *argv[]) {
 				inDir[strlen(inDir) + 1] = 0;
 				inDir[strlen(inDir)] = '\\';
 			}
-			if (!StrCmp(str, "id_nr") || !StrCmp(str, "indir_norepair")) {
+			if (!StrCmp(str, "id_nr") && !StrCmp(str, "indir_norepair") && !StrCompare(inDir, ":\\", 1) && inDir[0] != '%') {
 				StrClear(str);
 				sprintf(str, "%s%s", cd, inDir);
 				StrCopy(inDir, str);
@@ -339,7 +343,7 @@ int main(int argc, char *argv[]) {
 				outDir[strlen(outDir) + 1] = 0;
 				outDir[strlen(outDir)] = '\\';
 			}
-			if (!StrCmp(str, "od_nr") || !StrCmp(str, "outdir_norepair")) {
+			if (!StrCmp(str, "od_nr") && !StrCmp(str, "outdir_norepair") && !StrCompare(inDir, ":\\", 1) && inDir[0] != '%') {
 				sprintf(str, "%s%s", inDir, outDir);
 				StrCopy(outDir, str);
 			}
