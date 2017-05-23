@@ -1,5 +1,5 @@
 # Программы-интерфейсы для ffmpeg'а
-## ffmpeg_queue
+## ffmpeg\_queue
 Используется для массовой перегонки файлов одного формата в файлы другого формата с заданными параметрами, одинаковыми для всех.<br>
 На данный момент запуск программы возможен со следующими параметрами (регистр не важен, команды могут начинаться и с "/", а не только с "-"):<br>
 -help - вывод списка команд на экран с последующим завершением программы<br>
@@ -18,18 +18,18 @@
 -noOverrideOutDir - при включении этого параметра, папка входных файлов может быть задана в краткой форме ("folder's name", вместо "C:/.../folder's name") первее папки ввода, и не будет к ней приклеена. Я не думаю, что этот параметр кому-то понадобится.<br>
 -noRepairPaths - при включении этого параметра, папка входный файлов в короткой форме не будет приклеена к %cd% запуска программы, а папка вывода - к папке ввода, либо %cd% в зависимости от -noOverrideOutDir<br>
 <hr>
-Примеры запуска:
-***ffmpeg_queue.exe*** - программа приготовится к перекодировке avi-файлов в директории запуска в папку "Output [time]" (time - время, прошедшее с 198* года, с которого начинается отсчет в Windows. Перекодировка будет происходить 
-в кодеки: H265/HEVC (видео) и Opus (аудио). Расположение ffmpeg'а - C:\ffmpeg\bin\ffmpeg.exe. После запуска будет показано меню, в котором можно поменять все параметры.
-***%userprofile%\downloads\ffmpeg_queue.exe -ffpath D:\ffmpeg\bin\ffmpeg.exe -inDir %userprofile%\pictures\funnygifs\ -outDir "funny webms from gifs" -formats gif,webm -outParams "-c:v libvpx -qmin 22 -qmax 32 -threads 2 -auto-alt-ref 0" -noUser*** -
+**Примеры запуска**:<br>
+_ffmpeg\_queue.exe_ - программа приготовится к перекодировке avi-файлов в директории запуска в папку "Output [time]" (time - время, прошедшее с 198* года, с которого начинается отсчет в Windows. Перекодировка будет происходить 
+в кодеки: H265/HEVC (видео) и Opus (аудио). Расположение ffmpeg'а - C:\ffmpeg\bin\ffmpeg.exe. После запуска будет показано меню, в котором можно поменять все параметры.<br>
+_%userprofile%\downloads\ffmpeg\_queue.exe -ffpath D:\ffmpeg\bin\ffmpeg.exe -inDir %userprofile%\pictures\funnygifs\ -outDir "funny webms from gifs" -formats gif,webm -outParams "-c:v libvpx -qmin 22 -qmax 32 -threads 2 -auto-alt-ref 0" -noUser_ -
 Программа находится в "Загрузках". Перекодируются все gif-файлы в webm-ы из Изображения\funnygifs в "Изображения\funnygifs\funny webms from gifs" с данными параметрами, ffmpeg.exe находится на диске D, меню с ожиданием выводиться не будет.<br>
-***ffmpeg_queue.exe -formats "avi, mkv" -outParams "-c:v libx264 -qmin:v 25 -crf:v 28 -qmax:v 31 -c:a libopus -vbr:a on -b:a 192k"*** - программа находится в папке с видео, мы запускаем ее оттуда же. Перекодируются все avi-файлы 
+_ffmpeg\_queue.exe -formats "avi, mkv" -outParams "-c:v libx264 -qmin:v 25 -crf:v 28 -qmax:v 31 -c:a libopus -vbr:a on -b:a 192k"_ - программа находится в папке с видео, мы запускаем ее оттуда же. Перекодируются все avi-файлы 
 из папки запуска в автоматически созданную папку "Output [time]" формат mkv с данными параметрами, меню будет показано, при возникновении ошибок можно будет отреагировать.<br>
-***ffmpeg_queue.exe -formats jps,jpg -outParams "-vf stereo3d=in=sbsr:out=arcd -q:v 1"*** - все стереопары в формате jps в папке запуска будут превращены в анаглифное изображение в формате jpg в папке "Output [time]".<br>
-Другие примеры:
-***%userprofile%\downloads\ffmpeg_queue.exe -noOverrideOutDir -outDir "output" -inDir %userprofile%\music -formats mp3,mp3 -outParams "-q:a 4"*** - Программа находится в "Загрузках". Перекодируются все mp3-файлы в "Музыке", 
+_ffmpeg\_queue.exe -formats jps,jpg -outParams "-vf stereo3d=in=sbsr:out=arcd -q:v 1"_ - все стереопары в формате jps в папке запуска будут превращены в анаглифное изображение в формате jpg в папке "Output [time]".<br>
+**Другие примеры**:<br>
+_%userprofile%\downloads\ffmpeg\_queue.exe -noOverrideOutDir -outDir "output" -inDir %userprofile%\music -formats mp3,mp3 -outParams "-q:a 4"_ - Программа находится в "Загрузках". Перекодируются все mp3-файлы в "Музыке", 
 вывод будет совершен в **папку, в которой была открыта консоль на момент запуска из нее команды**\output.<br>
-***%userprofile%\downloads\ffmpeg_queue.exe -noRepairPaths -inDir "music flac" -outDir "music mp3" -formats flac,mp3 -outParams "-b:a 256k"*** - Программа находится в "Загрузках". Перекодируются все flac-файлы в 
+_%userprofile%\downloads\ffmpeg\_queue.exe -noRepairPaths -inDir "music flac" -outDir "music mp3" -formats flac,mp3 -outParams "-b:a 256k"_ - Программа находится в "Загрузках". Перекодируются все flac-файлы в 
 "%userprofile%\downloads\music flac" в mp3-файлы в "%userprofile%\downloads\music mp3".<br>
-***ffmpeg_queue.exe -ffpath copy -inSign "" -outParams "" -formats pns,png -outDir "Stereo pngs"*** - Вместо ffmpeg.exe используется утилита copy, вместо "-i" используется пустая строка: все pns-файлы будут скопированы в "Stereo pngs\" с 
-заменой формата на png.
+_ffmpeg\_queue.exe -ffpath copy -inSign "" -outParams "" -formats pns,png -outDir "Stereo pngs"_ - Вместо ffmpeg.exe используется утилита copy, вместо "-i" используется пустая строка: все pns-файлы будут скопированы в "Stereo pngs\" с 
+заменой формата на png.<br>
