@@ -105,23 +105,25 @@ bool read(char *s, FILE *f) {
 }
 
 // Reads one word from file (finish is space, enter or EOF): returns 1 if word was read
-bool readWord(char *s, FILE *f) {
+char readWord(char *s, FILE *f) {
 	int len = 0;
+	char last = -1;
 	if (f == NULL)
-		return 0;
+		return -1;
 	while (1) {
 		if (fscanf(f, "%c", &s[len]) < 1)
 			break;
 		if (s[len] == ' ' || s[len] == '\n') {
+			last = s[len];
 			s[len] = 0;
 			break;
 		} else
 			len++;
 	}
 	if (len == 0)
-		return 0;
+		return -1;
 	else
-		return 1;
+		return last;
 }
 
 // Возвращает 1, если есть формат файла, и 0, если его нет.

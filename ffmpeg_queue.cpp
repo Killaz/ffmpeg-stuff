@@ -35,7 +35,7 @@
 	       "[-inDir <string>] or [-inDir \"<string with spaces>\"] - set input folder (path to program's exe file by default)\n" \
 	       "[-outDir <string>] or [-outDir \"<string with spaces>\"] - set output folder (creates automaticly by default)\n" \
 	       "[-skip] - skip errors automaticly (automaticly turned on with [-shutdown])\n" \
-	       "[-noUser] - no questions will be asked\n"  \
+	       "[-noUser] - menu won't be displayed, no questions will be asked\n"  \
 	       "[-shutdown] - turns off computer after finishing\n" \
 	       "[-noOverrideOutDir] - you can put -outDir first, path won't be merged to inDir (that's not what you want usually)\n" \
 	       "[-noRepairPaths] - short pathes won't be merged with launch dir's path nor with inDir (will be hiddenly merged with exe's path)\n" \
@@ -265,7 +265,7 @@ int main(int argc, char *argv[]) {
 	ParamsMenu:;
 	if (user) {
 		printf("Сейчас строка вызова выглядит так (выключение: %s):\n%s %s %s \"%s<filename>.%s\" %s %s \"%s<filename>.%s\"\n"
-		       "Напишите:\n\"path\" / \"p\", чтобы изменить путь до ffmpeg.exe,\n"
+		       "Введите:\n\"path\" / \"p\", чтобы изменить путь до ffmpeg.exe,\n"
 		       "\"inParams\" / \"ip\" для изменения параметров входных файлов,\n"
 		       "\"inSign\" / \"is\" для изменения параметра перед входным файлом,\n"
 		       "\"inDir\" для изменения директории входных файлов,\n"
@@ -277,13 +277,13 @@ int main(int argc, char *argv[]) {
 		       "    \"outDir_noRepair\" - ввод короткого пути без его раскрытия относительно папки входных файлов,\n"
 		       "\"formatOut\" / \"fo\" / \"fout\" для изменения формата выходных файлов,\n"
 		       "\"shutdown\" / \"off\" для изменения параметра выключения после перекодировки,\n"
-		       "\"start\" / \"go\" - начать перекодировку с текущими параметрами,\n\"exit\" / \"stop\" - выход\n>> ",
+		       "(пустая строка) / \"start\" / \"go\" - начать перекодировку с текущими параметрами,\n\"exit\" / \"stop\" - выход\n>> ",
 		       shutdown ? "будет произведено" : "не будет произведено", ffpath, inParams, inSign, inDir, format_in,
 		       outParams, outSign, outDir, format_out);
-		readWord(str, stdin);
-		if (!StrCmp(str, "") && !StrCmp(str, "go") && !StrCmp(str, "start"))
-			edited = 1;
-		else
+		c = readWord(str, stdin);
+		for (size_t i = 0; i < strlen(str); i++)
+			str[i] = tolower(str[i]);
+		if (StrCmp(str, "") || StrCmp(str, "go") || StrCmp(str, "start")) {
 			if (edited) {
 				user = 0;
 				StrClear(str);
@@ -293,9 +293,7 @@ int main(int argc, char *argv[]) {
 				goto Init;
 			} else 
 				goto Work;
-		for (size_t i = 0; i < strlen(str); i++)
-			str[i] = tolower(str[i]);
-		if (StrCmp(str, "exit") || StrCmp(str, "stop")) {
+		} elif (StrCmp(str, "exit") || StrCmp(str, "stop")) {
 			printf("Exiting;\n");
 			goto Deleting;
 		} elif (StrCmp(str, "path") || StrCmp(str, "p")) {
@@ -356,6 +354,7 @@ int main(int argc, char *argv[]) {
 		else
 			printf("Can't recognize command: %s\n", str);
 		printf("\n");
+		edited = 1;
 		goto ParamsMenu;
 	}
 	if (edited)
