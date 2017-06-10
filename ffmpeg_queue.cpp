@@ -14,7 +14,6 @@
 
 #include "ffmpeg_prog.h"
 
-#define elif else if
 #define quit(a) \
 	printf("%s; Завершение программы.\n", a); \
 	if (shutdown) { \
@@ -23,9 +22,11 @@
 	} \
 	system("pause"); \
 	return 0;
+#define VERSION "1.0.0"
 
 #define printHelp() \
-	printf("[-ffpath <string>] or [-ffpath <string with spaces>\"] - set path to ffmpeg's .exe file\n" \
+	printf("ffmpeg_queue version: " VERSION "\n" \
+	       "[-ffpath <string>] or [-ffpath <string with spaces>\"] - set path to ffmpeg's .exe file\n" \
 	       "[-inSign <string>] - set \"-i\" to something different (empty for example, for use not with ffmpeg)\n" \
 	       "[-outSign <string>] - set empty string before path to output file to something else\n" \
 	       "[-formats <format_in>,<format_out>] or [-formats \"format_in, format_out\"] or [-formats <format_in-out>]\n" \
@@ -75,9 +76,10 @@ int main(int argc, char *argv[]) {
 	int i, cnt;//, lang = 1; // lang = 0 - eng, 1 - rus
 	char c = 0, fileName[140], file[350], str[2000], ffpath[300] = "C:\\ffmpeg\\bin\\ffmpeg.exe",
 	     inParams[400] = "", outParams[400] = "-map 0 -c:a libopus -vbr:a on -b:a 192k -c:v libx265 -qmin:v 22 -crf:v 25 -qmax:v 32",
-	     inSign[15] = "-i", outSign[15] = "", inDir[300] = "", outDir[300] = "", cd[300] = "";
+	     inSign[15] = "-i", outSign[15] = "", inDir[300] = "", outDir[300] = "", cd[300] = "",
+	     inDir_norm[300], outDir_norm[300], ffpath_norm[300], cd_norm[300];
 	unsigned long long t, t1;
-	FILE *in;
+	FILE *in = NULL;
 	Init:;
 	t = (unsigned long long) time(0);
 	sprintf(file, "dir_%I64u.txth", t);
@@ -92,12 +94,17 @@ int main(int argc, char *argv[]) {
 		in = fopen(str, "rt");
 		read(inDir, in);
 		fclose(in);
-		sprintf(str, "rm cd_%I64u.txth", t);
+		sprintf(str, "erase cd_%I64u.txth", t);
 		system(str);
 		inDir[strlen(inDir) - 1] = '\\';
 		StrCopy(cd, inDir);
-		StrCat(outDir, inDir);
-		sprintf(outDir, "%sOutput %I64u\\", outDir, t);
+		sprintf(outDir, "%sOutput %I64u\\", inDir, t);
+		StrCopy(inDir_norm, inDir);
+		StrCopy(outDir_norm, outDir);
+		StrCopy(cd_norm, cd);
+		NormalRus(inDir_norm);
+		NormalRus(outDir_norm);
+		NormalRus(cd_norm);
 	}
 
 	// Разбор строки параметров
@@ -110,25 +117,25 @@ int main(int argc, char *argv[]) {
 				command[j] = tolower(command[j]);
 			if (StrCmp(command, "-inparams") || StrCmp(command, "/outparams"))
 				StrCat(inParams, argv[++i]);
-			elif (StrCmp(command, "-outparams") || StrCmp(command, "/outparams"))
+			else if (StrCmp(command, "-outparams") || StrCmp(command, "/outparams"))
 				StrCopy(outParams, argv[++i]);
-			elif (StrCmp(command, "-insign") || StrCmp(command, "/insign"))
+			else if (StrCmp(command, "-insign") || StrCmp(command, "/insign"))
 				StrCopy(inSign, argv[++i]);
-			elif (StrCmp(command, "-outsign") || StrCmp(command, "/outsign"))
+			else if (StrCmp(command, "-outsign") || StrCmp(command, "/outsign"))
 				StrCopy(outSign, argv[++i]);
-			elif (StrCmp(command, "-indir") || StrCmp(command, "/indir")) {
+			else if (StrCmp(command, "-indir") || StrCmp(command, "/indir")) {
 				StrCopy(inDir, argv[++i]);
 				if (inDir[strlen(inDir) - 1] != '\\') {
 					inDir[strlen(inDir) + 1] = 0;
 					inDir[strlen(inDir)] = '\\';
 				}
-			} elif (StrCmp(command, "-outdir") || StrCmp(command, "/outdir")) {
+			} else if (StrCmp(command, "-outdir") || StrCmp(command, "/outdir")) {
 				StrCopy(outDir, argv[++i]);
 				if (outDir[strlen(outDir) - 1] != '\\') {
 					outDir[strlen(outDir) + 1] = 0;
 					outDir[strlen(outDir)] = '\\';
 				}
-			} elif (StrCmp(command, "-formats") || StrCmp(command, "/formats")) {
+			} else if (StrCmp(command, "-formats") || StrCmp(command, "/formats")) {
 				StrClear(format_in);
 				StrClear(format_out);
 				i++;
@@ -147,20 +154,20 @@ int main(int argc, char *argv[]) {
 						}
 					StrCatN(format_out, argv[i], comma, strlen(argv[i]));
 				}
-			} elif (StrCmp(command, "-nouser") || StrCmp(command, "/nouser"))
+			} else if (StrCmp(command, "-nouser") || StrCmp(command, "/nouser"))
 			user = 0, skip = 1;
-			elif (StrCmp(command, "-help") || StrCmp(command, "/help")) {
+			else if (StrCmp(command, "-help") || StrCmp(command, "/help")) {
 				printHelp();
 				quit("Help printed; quiting");
-			} elif (StrCmp(command, "-shutdown") || StrCmp(command, "/shutdown") || StrCmp(command, "-off") || StrCmp(command, "/off"))
+			} else if (StrCmp(command, "-shutdown") || StrCmp(command, "/shutdown") || StrCmp(command, "-off") || StrCmp(command, "/off"))
 				shutdown = 1;
-			elif (StrCmp(command, "-ffpath") || StrCmp(command, "/ffpath"))
+			else if (StrCmp(command, "-ffpath") || StrCmp(command, "/ffpath"))
 				StrCopy(ffpath, argv[++i]);
-			elif (StrCmp(command, "-skip") || StrCmp(command, "/skip"))
+			else if (StrCmp(command, "-skip") || StrCmp(command, "/skip"))
 				skip = 1;
-			elif (StrCmp(command, "-nooverrideoutdir") || StrCmp(command, "/nooverrideoutdir"))
+			else if (StrCmp(command, "-nooverrideoutdir") || StrCmp(command, "/nooverrideoutdir"))
 				overrideOutDir = 0;
-			elif (StrCmp(command, "-norepairpaths") || StrCmp(command, "/norepairpaths"))
+			else if (StrCmp(command, "-norepairpaths") || StrCmp(command, "/norepairpaths"))
 				repairPaths = 0;
 			else {
 				printf("Can't recognize parameter: %s / %s\n", argv[i], command);
@@ -169,6 +176,7 @@ int main(int argc, char *argv[]) {
 		}
 		if (repairPaths && !StrCompare(inDir, ":\\", 1) && inDir[0] != '%') {
 			sprintf(str, "%s%s", cd, inDir);
+			sprintf(inDir_norm, "%s%s", cd_norm, inDir);
 			StrCopy(inDir, str);
 		}
 		if (repairPaths && !StrCompare(outDir, ":\\", 1) && outDir[0] != '%') {
@@ -177,15 +185,17 @@ int main(int argc, char *argv[]) {
 				StrCopy(outDir, str);
 			} else
 				sprintf(str, "%s%s", cd, outDir);
+				sprintf(outDir_norm, "%s%s", cd_norm, outDir);
 				StrCopy(outDir, str);
 		}
+		StrCopy(ffpath_norm, ffpath);
 	}
 /*	printf("Программа находится в папке с музыкой?\n");
 	c = getch();
 	if (c == 27) {
 		printf("Esc\n");
 		quit("Нажатие Esc");
-	} elif (c != 'y' && c != 'Y' && c != 'н' && c != 'Н' && c != 13) {
+	} else if (c != 'y' && c != 'Y' && c != 'н' && c != 'Н' && c != 13) {
 		printf("%c\n", c);
 		quit("Не было получено подтверждение");
 	}
@@ -205,7 +215,12 @@ int main(int argc, char *argv[]) {
 		}
 	}*/
 	Opening:;
-	sprintf(str, "dir \"%s\" /B /A-D >> %s", inDir, file);
+	if (in != NULL) {
+		fclose(in), in = NULL;
+		sprintf(str, "erase %s", file);
+		system(str);
+	}
+	sprintf(str, "dir \"%s\" /B /A-D >> %s", inDir_norm, file);
 	system(str);
 	if ((in = fopen(file, "rt")) == NULL) { // never has been tested, lol
 //		fclose(stdin);
@@ -224,7 +239,7 @@ int main(int argc, char *argv[]) {
 			} while (file[i++] != '\n');
 			if (file[i - 1] == '\n') {
 				file[i - 1] = 0;
-				sprintf(file, "%s\\dir_%I64u.txth", file, t);
+				sprintf(file, "%s\\dir_%I64u.txth", file, t); //won't work with rus paths, but who cares
 				goto Opening;
 			} else {
 				quit("Нажатие Esc");
@@ -264,7 +279,7 @@ int main(int argc, char *argv[]) {
 
 	ParamsMenu:;
 	if (user) {
-		printf("Сейчас строка вызова выглядит так (выключение: %s):\n%s %s %s \"%s<filename>.%s\" %s %s \"%s<filename>.%s\"\n"
+		printf("\nНайдено %d файлов;\nСейчас строка вызова выглядит так (выключение: %s):\n%s %s %s \"%s<filename>.%s\" %s %s \"%s<filename>.%s\"\n"
 		       "Введите:\n\"path\" / \"p\", чтобы изменить путь до ffmpeg.exe,\n"
 		       "\"inParams\" / \"ip\" для изменения параметров входных файлов,\n"
 		       "\"inSign\" / \"is\" для изменения параметра перед входным файлом,\n"
@@ -278,7 +293,7 @@ int main(int argc, char *argv[]) {
 		       "\"formatOut\" / \"fo\" / \"fout\" для изменения формата выходных файлов,\n"
 		       "\"shutdown\" / \"off\" для изменения параметра выключения после перекодировки,\n"
 		       "(пустая строка) / \"start\" / \"go\" - начать перекодировку с текущими параметрами,\n\"exit\" / \"stop\" - выход\n>> ",
-		       shutdown ? "будет произведено" : "не будет произведено", ffpath, inParams, inSign, inDir, format_in,
+		       cnt, shutdown ? "будет произведено" : "не будет произведено", ffpath, inParams, inSign, inDir, format_in,
 		       outParams, outSign, outDir, format_out);
 		c = readWord(str, stdin);
 		for (size_t i = 0; i < strlen(str); i++)
@@ -288,27 +303,29 @@ int main(int argc, char *argv[]) {
 				user = 0;
 				StrClear(str);
 				fclose(in);
-				sprintf(str, "rm %s", file);
+				sprintf(str, "erase %s", file);
 				system(str);
 				goto Init;
 			} else 
 				goto Work;
-		} elif (StrCmp(str, "exit") || StrCmp(str, "stop")) {
+		}
+		edited = 1;
+		if (StrCmp(str, "exit") || StrCmp(str, "stop")) {
 			printf("Exiting;\n");
 			goto Deleting;
-		} elif (StrCmp(str, "path") || StrCmp(str, "p")) {
+		} else if (StrCmp(str, "path") || StrCmp(str, "p")) {
 			if (c == 10)
 				printf("Введите путь до ffmpeg.exe (включая сам \"ffmpeg.exe\"): ");
 			read(ffpath, stdin);
-		} elif (StrCmp(str, "inparams") || StrCmp(str, "ip")) {
+		} else if (StrCmp(str, "inparams") || StrCmp(str, "ip")) {
 			if (c == 10)
 				printf("Введите строку параметров для входных файлов: ");
 			read(inParams, stdin);
-		} elif (StrCmp(str, "insign") || StrCmp(str, "is")) {
+		} else if (StrCmp(str, "insign") || StrCmp(str, "is")) {
 			if (c == 10)
 				printf("Введите параметр, предворяющий написание входного файла (\"-i\"): ");
 			read(inSign, stdin);
-		} elif (StrCmp(str, "indir") || StrCmp(str, "id")) {
+		} else if (StrCmp(str, "indir") || StrCmp(str, "id")) {
 			if (c == 10)
 				printf("Введите путь до папки с входными файлами: ");
 			read(inDir, stdin);
@@ -316,24 +333,33 @@ int main(int argc, char *argv[]) {
 				inDir[strlen(inDir) + 1] = 0;
 				inDir[strlen(inDir)] = '\\';
 			}
+			StrCopy(inDir_norm, inDir);
+			NormalRus(inDir_norm);
 			if (!StrCmp(str, "id_nr") && !StrCmp(str, "indir_norepair") && !StrCompare(inDir, ":\\", 1) && inDir[0] != '%') {
 				StrClear(str);
 				sprintf(str, "%s%s", cd, inDir);
 				StrCopy(inDir, str);
+				sprintf(str, "%s%s", cd_norm, inDir_norm);
+				StrCopy(inDir_norm, str);
+			} else {
+				StrCopy(inDir_norm, inDir);
+				NormalRus(inDir_norm);
 			}
-		} elif (StrCmp(str, "formatin") || StrCmp(str, "fi") || StrCmp(str, "fin")) {
+			goto Opening;
+		} else if (StrCmp(str, "formatin") || StrCmp(str, "fi") || StrCmp(str, "fin")) {
 			if (c == 10)
 				printf("Введите формат входных файлов для перекодировки(без точки): ");
 			read(format_in, stdin);
-		} elif (StrCmp(str, "outparams") || StrCmp(str, "op")) {
+			goto Opening;
+		} else if (StrCmp(str, "outparams") || StrCmp(str, "op")) {
 			if (c == 10)
 				printf("Введите строку параметров для выходных файлов: ");
 			read(outParams, stdin);
-		} elif (StrCmp(str, "outsign") || StrCmp(str, "os")) {
+		} else if (StrCmp(str, "outsign") || StrCmp(str, "os")) {
 			if (c == 10)
 				printf("Введите строку параметров для выходных файлов: ");
 			read(outSign, stdin);
-		} elif (StrCmp(str, "outdir") || StrCmp(str, "od") || StrCmp(str, "od_nr") || StrCmp(str, "outdir_norepair")) {
+		} else if (StrCmp(str, "outdir") || StrCmp(str, "od") || StrCmp(str, "od_nr") || StrCmp(str, "outdir_norepair")) {
 			if (c == 10)
 				printf("Введите путь до папки вывода: ");
 			read(outDir, stdin);
@@ -341,27 +367,37 @@ int main(int argc, char *argv[]) {
 				outDir[strlen(outDir) + 1] = 0;
 				outDir[strlen(outDir)] = '\\';
 			}
+			StrCopy(outDir_norm, outDir);
+			NormalRus(outDir_norm);
 			if (!StrCmp(str, "od_nr") && !StrCmp(str, "outdir_norepair") && !StrCompare(inDir, ":\\", 1) && inDir[0] != '%') {
 				sprintf(str, "%s%s", inDir, outDir);
 				StrCopy(outDir, str);
+				sprintf(str, "%s%s", inDir_norm, outDir_norm);
+				StrCopy(outDir_norm, str);
+			} else {
+				StrCopy(outDir_norm, outDir);
+				NormalRus(outDir_norm);
 			}
-		} elif (StrCmp(str, "formatout") || StrCmp(str, "fo") || StrCmp(str, "fout")) {
+			goto Opening;
+		} else if (StrCmp(str, "formatout") || StrCmp(str, "fo") || StrCmp(str, "fout")) {
 			if (c == 10)
 				printf("Введите формат выходных файлов (без точки): ");
 			read(format_out, stdin);
-		} elif (StrCmp(str, "shutdown") || StrCmp(str, "off"))
+			goto Opening;
+		} else if (StrCmp(str, "shutdown") || StrCmp(str, "off"))
 			shutdown = !shutdown;
 		else
 			printf("Can't recognize command: %s\n", str);
 		printf("\n");
-		edited = 1;
 		goto ParamsMenu;
 	}
+	StrCopy(ffpath_norm, ffpath);
+	NormalRus(ffpath_norm);
 	if (edited)
 		user = 1;
 	Work:;
 	rewind(in);
-    sprintf(str, "mkdir \"%s\"", outDir);
+    sprintf(str, "mkdir \"%s\"", outDir_norm);
     if (system(str)) {
     	printf("Ошибка при создании папки выходных файлов.\n");
     	goto Deleting;
@@ -378,7 +414,12 @@ int main(int argc, char *argv[]) {
     		sprintf(str, "%s %s %s \"%s%s.%s\" %s %s \"%s%s.%s\"", ffpath, inParams, inSign, inDir, fileName,
     		                                                       format_in, outParams, outSign, outDir, fileName, format_out);
     		printf("%s\n", str);
-    		NormalRus(str);
+//    		NormalRus(str);
+			char fileName_norm[140];
+			StrCopy(fileName_norm, fileName);
+			NormalRus(fileName_norm);
+    		sprintf(str, "%s %s %s \"%s%s.%s\" %s %s \"%s%s.%s\"", ffpath_norm, inParams, inSign, inDir_norm, fileName_norm,
+    		                                                       format_in, outParams, outSign, outDir_norm, fileName_norm, format_out);
     		if (system(str) && !skip) {
     			printf("Ошибка при работе ffmpeg'а. Нажмите R для повтора, Esc для выхода, любую клавишу для пропуска и U для пропуска всех ошибок\n");
     			t1 = time(0);
@@ -390,14 +431,14 @@ int main(int argc, char *argv[]) {
 		    				printf("%c\n", c);
 						if (c == 'r' || c == 'R' || c == 'к' || c == 'К')
 							goto FFtry;
-						elif (c == 27) {
+						else if (c == 27) {
 							printf("Esc\nУдалить перекодированные на данный момент файлы и папку?\n");
 							c = getch();
 							if (c == 'y' || c == 'Y' || c == 13)
 								goto FullDeleting;
 							else
 								goto Deleting;
-						} elif (c == 'u' || c == 'U')
+						} else if (c == 'u' || c == 'U')
 							skip = 1;
 						else
 							break;
@@ -414,32 +455,32 @@ int main(int argc, char *argv[]) {
     printf("%d из %d\n", i, cnt);
     if (i == 0) {
     	FullDeleting:;
-    	sprintf(str, "rmdir \"%s\" /Q /S", outDir);
+    	sprintf(str, "rmdir \"%s\" /Q /S", outDir_norm);
 		system(str);
     }
 	Deleting:;
 	fclose(in);
 	if (shutdown) {
-		sprintf(str, "%sshutdown.no", inDir);
+		sprintf(str, "%sshutdown.no", inDir_norm);
 		if ((in = fopen(str, "rt")) != NULL) {
 			shutdown = 0;
 			fclose(in);
-			system("rm shutdown.no");
+			system("erase shutdown.no");
 			printf("Shutdown canceled: shutdown.no found\n");
 		}
 	} else {
-		sprintf(str, "%sshutdown.yes", inDir);
+		sprintf(str, "%sshutdown.yes", inDir_norm);
 		if ((in = fopen("shutdown.yes", "rt")) != NULL) {
 			shutdown = 1;
 			fclose(in);
-			system("rm shutdown.yes");
+			system("erase shutdown.yes");
 			printf("Will shut down the PC: shutdown.yes found\n");
 		}
 	}
 	sprintf(str, "title \"Finished: %I64d\"", (unsigned long long) time(0));
 	system(str);
 	memset(str, 0, sizeof(str));
-	StrCat(str, "rm ");
+	StrCat(str, "erase ");
 	StrCat(str, file);
 	if (!system(str)) {
 		quit("Временный файл был удален");
