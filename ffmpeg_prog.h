@@ -126,6 +126,35 @@ char readWord(char *s, FILE *f) {
 		return last;
 }
 
+// Reads string between quotes, or reads upto \n. Returns: 0 - nothing to read, 1 - reading upto \n (no starting quote),
+//                                                         2 - OK, 3 - no closing quote, 4 - EOF after quote
+int readQuote(char *s, FILE *f) {
+	char c;
+	if (f == NULL)
+		return 0;
+	c = fgetc(f);
+	if (c == EOF)
+		return 0;
+	if (c != '"') {
+		ungetc(c, f);
+		read(s, f);
+		return 1;
+	}
+	int len = 0;
+	while (1) {
+		if (fscanf(f, "%c", &s[len]) < 1)
+			return 4;
+		if (s[len] == '"') {
+			s[len] = 0;
+			return 2;
+		} else if (s[len] == '\n') {
+			s[len] = 0;
+			return 3;
+		} else
+			len++;
+	}
+}
+
 // Возвращает 1, если есть формат файла, и 0, если его нет.
 // В первом случае заменяет строку format на данный формат.
 bool Analize(char *from, char *format) {
