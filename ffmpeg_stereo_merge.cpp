@@ -13,14 +13,16 @@
 
 #include "ffmpeg_prog.h"
 
-#define elif else if
+#define VERSION "1.0.0"
+
 #define quit(a) \
 	printf("%s; Завершение программы.\n", a); \
 	system("pause"); \
 	return 0;
 
 #define printHelp() \
-	printf("[-ffpath <string>] or [-ffpath <string with spaces>\"] - set path to ffmpeg's .exe file\n" \
+	printf("ffmpeg_stereo_merge version: " VERSION "\n" \
+	       "[-ffpath <string>] or [-ffpath <string with spaces>\"] - set path to ffmpeg's .exe file\n" \
 	       "[-formatOut <string>] - force output format" \
 	       "[-endless] - programm won't close after one sterepo-picture\n" \
 	       "[-noUser] - menu won't be displayed, no questions will be asked\n" \
@@ -42,19 +44,19 @@ int main(int argc, char *argv[]) {
 	system("cls");
 // Разбор строки параметров
 	for (i = 1; i < argc; i++) {
-		if (StrCmp(argv[i], "-endless") || StrCmp(argv[i], "/endless"))
+		if (StrCmp(argv[i], 2, "-endless", "/endless"))
 			endless = 1, printf("endless: on\n");
-		elif (StrCmp(argv[i], "-ffpath") || StrCmp(argv[i], "/ffpath"))
+		else if (StrCmp(argv[i], 2, "-ffpath", "/ffpath"))
 			StrCat(ffpath, argv[++i]);
-		elif (StrCmp(argv[i], "-format_out") || StrCmp(argv[i], "/format_out"))
+		else if (StrCmp(argv[i], 2, "-format_out", "/format_out"))
 			StrCat(format_out, argv[++i]);
-		elif (StrCmp(argv[i], "-r_first") || StrCmp(argv[i], "/r_first"))
+		else if (StrCmp(argv[i], 2, "-r_first", "/r_first"))
 			right_first = 0;
-		elif (Analize(argv[i], format_in) || argv[i][0] == '"') {
+		else if (Analize(argv[i], format_in) || argv[i][0] == '"') {
 			StrClear(argv[i], strlen(format_in) + 1);
 			if (files == 0)
 				StrCat(file1, argv[i]), files = 1;
-			elif (files == 1)
+			else if (files == 1)
 				StrCat(file2, argv[i]), files = 2;
 			else
 				printf("Unknown parameter: %s (input files already: %s and %s)\n", argv[i], file1, file2);
@@ -79,23 +81,23 @@ int main(int argc, char *argv[]) {
 		c = readWord(str, stdin);
 		for (size_t i = 0; i < strlen(str); i++)
 			str[i] = tolower(str[i]);
-		if (StrCmp(str, "") || StrCmp(str, "go") || StrCmp(str, "start"))
+		if (StrCmp(str, 3, "", "go", "start"))
 			break;
-		elif (StrCmp(str, "exit") || StrCmp(str, "stop")) {
+		else if (StrCmp(str, 2, "exit", "stop")) {
 			quit("Exiting");
-		} elif (StrCmp(str, "path") || StrCmp(str, "p")) {
+		} else if (StrCmp(str, 2, "path", "p")) {
 			if (c == 10)
 				printf("Введите путь до ffmpeg.exe (включая сам \"ffmpeg.exe\"): ");
 			read(ffpath, stdin);
-		} elif (StrCmp(str, "outfilter") || StrCmp(str, "of") || StrCmp(str, "outfilters")) {
+		} else if (StrCmp(str, 3, "outfilter", "of", "outfilters")) {
 			if (c == 10)
 				printf("Введите фильтр(ы) выходного файла (для отсутствия фильтров - \"copy\"): ");
 			read(outFilter, stdin);
-		} elif (StrCmp(str, "outparams") || StrCmp(str, "op") || StrCmp(str, "outparam")) {
+		} else if (StrCmp(str, 3, "outparams", "op", "outparam")) {
 			if (c == 10)
 				printf("Введите параметры выходного файла: ");
 			read(outParams, stdin);
-		} elif (StrCmp(str, "outdir") || StrCmp(str, "od")/* || StrCmp(str, "od_nr") || StrCmp(str, "outdir_norepair")*/) {
+		} else if (StrCmp(str, 2, "outdir", "od")/* || StrCmp(str, "od_nr") || StrCmp(str, "outdir_norepair")*/) {
 			if (c == 10)
 				printf("Введите путь до папки вывода: ");
 			read(outDir, stdin);
@@ -103,7 +105,7 @@ int main(int argc, char *argv[]) {
 				outDir[strlen(outDir) + 1] = 0;
 				outDir[strlen(outDir)] = '\\';
 			}
-		} elif (StrCmp(str, "formatout") || StrCmp(str, "fo") || StrCmp(str, "fout")) {
+		} else if (StrCmp(str, 3, "formatout", "fo", "fout")) {
 			if (c == 10)
 				printf("Введите формат выходных файлов (без точки; пустая строка - не менять формат входных файлов): ");
 			read(format_out, stdin);
@@ -111,11 +113,11 @@ int main(int argc, char *argv[]) {
 				forced_fout = 1;
 			else
 				forced_fout = 0, StrCat(format_out, format_in);
-		} elif (StrCmp(str, "postfix") || StrCmp(str, "pf")) {
+		} else if (StrCmp(str, 2, "postfix", "pf")) {
 			if (c == 10)
 				printf("Введите строку, которая будет приписываться к имени выходного файла (пустая строка - имя совпадает с изображением для левого глаза): ");
 			read(postfix, stdin);
-		} elif (StrCmp(str, "endless") || StrCmp(str, "el")) {
+		} else if (StrCmp(str, 2, "endless", "el")) {
 			endless = !endless;
 		} else
 			printf("Can't recognize command: %s\n", str);
@@ -159,14 +161,14 @@ int main(int argc, char *argv[]) {
 	if (StrCmp(file1, "endless")) {
 		endless = !endless, printf("endless: %s\n", endless ? "on" : "off");
 		goto Opening;
-	} elif (StrCmp(file1, "exit")) {
+	} else if (StrCmp(file1, "exit")) {
 		quit("Exiting");
-	} elif (StrCmp(file1, "help")) {
+	} else if (StrCmp(file1, "help")) {
 		printf("\"exit\" for exit, \"endless\" turns on/off endless mode, \"params\" returns you to parameters change menu\n");
 		goto Opening;
-	} elif (StrCmp(file1, "params")) {
+	} else if (StrCmp(file1, "params")) {
 		goto Params;
-	} elif (!Analize(file1, format_in)) {
+	} else if (!Analize(file1, format_in)) {
 		printf("Unknown command (or file without type): %s\n", file1);
 		goto Opening;
 	} else

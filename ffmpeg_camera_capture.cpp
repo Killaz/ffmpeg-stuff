@@ -1,19 +1,24 @@
 #include <stdio.h>
 #include <string.h>
+//for strlen()
 #include <conio.h>
+// for getch()
 #include <stdlib.h>
+// for system()
 #include <windows.h>
+// for Beep()
 #include "ffmpeg_prog.h"
 
+#define VERSION "1.0.0"
+
 #define printHelp() \
-	printf("[-ffpath <string>] - set path to ffmpeg's .exe file\n" \
-	       "[-name30 <string>] - set path + name pattern for 30fps videos\n" \
-	       "[-name60 <string>] - set path + name pattern for 60fps videos\n" \
-	       "[-number30 <integer>] - set starting number for 30fps videos\n" \
-	       "[-number60 <integer>] - set starting number for 60fps videos\n" \
-	       "[-inParams <string>] or [-inParams \"<string with spaces>\"] - give input files parameters to ffmpeg\n" \
-	       "[-outParams <string>] or [-outParams \"<string with spaces>\"] - give output files parameters to ffmpeg\n" \
-	       "[-audio <boolean>] - set audio recording on or off\n" \
+	printf("\nffmpeg_camera_capture version: " VERSION "\n" \
+	       "[-ffpath <string>] - set path to ffmpeg's .exe file [default: C:\\ffmpeg\\bin\\ffmpeg.exe]\n" \
+	       "[-name30 <string>] - set path + name pattern for 30fps videos [default: %%userprofile%%\\Videos\\3D-720]\n" \
+	       "[-name60 <string>] - set path + name pattern for 60fps videos [default: %%userprofile%%\\Videos\\3D-360]\n" \
+	       "[-number30 <integer>] - set starting number for 30fps videos [default: 0]\n" \
+	       "[-number60 <integer>] - set starting number for 60fps videos [default: 0]\n" \
+	       "[-audio <boolean>] - set audio recording on or off [default: off]\n" \
 	       "[-audioDevice <string>] - set name of audio device to use (don't forget quotes)\n" \
 	      );
 
@@ -37,40 +42,40 @@ int numberCorrect(char *name, int n, char *format_out) {
 }
 
 int main (int argc, char *argv[]) {
-	char c, ffpath[300] = "C:\\ffmpeg\\bin\\ffmpeg.exe", name30[200] = "E:\\3D-test-720", name60[200] = "E:\\3D-test-360",
+	char c, ffpath[300] = "C:\\ffmpeg\\bin\\ffmpeg.exe", name30[200] = "%%userprofile%%\\Videos\\3D-720", name60[200] = "%%userprofile%%\\Videos\\3D-360",
 	     str[2000], audioS[200] = "\"@device_cm_{33D9A762-90C8-11D0-BD43-00A0C911CE86}\\wave_{3E91D00C-7F55-47F0-B9C6-986C43CFE953}\"",
 	     format_out[15] = "mkv";
 	int n30 = 0, n60 = 0;
-	bool audio = 1;
+	bool audio = 0;
 	for (int i = 1; i < argc; i++) {
 		char command[80] = "";
 		StrCat(command, argv[i]);
 		for (size_t j = 0; j < strlen(command); j++)
 			command[j] = tolower(command[j]);
-		if (StrCmp(command, "-name30") || StrCmp(command, "/name30"))
+		if (StrCmp(command, 2, "-name30", "/name30"))
 			StrCopy(name30, argv[++i]);
-		else if (StrCmp(command, "-name60") || StrCmp(command, "/name60"))
+		else if (StrCmp(command, 2, "-name60", "/name60"))
 			StrCopy(name60, argv[++i]);
-		else if (StrCmp(command, "-number30") || StrCmp(command, "/number30"))
+		else if (StrCmp(command, 2, "-number30", "/number30"))
 			sscanf(argv[++i], "%d", &n30);
-		else if (StrCmp(command, "-number60") || StrCmp(command, "/number60"))
+		else if (StrCmp(command, 2, "-number60", "/number60"))
 			sscanf(argv[++i], "%d", &n60);
-		else if (StrCmp(command, "-audio") || StrCmp(command, "/audio")) {
+		else if (StrCmp(command, 2, "-audio", "/audio")) {
 			i++;
-			if (StrCmp(argv[i], "1") || StrCmp(argv[i], "true") || StrCmp(argv[i], "on"))
+			if (StrCmp(argv[i], 3, "1", "true", "on"))
 				audio = 1;
 			else if (StrCmp(argv[i], "0" ) || StrCmp(argv[i], "false") || StrCmp(argv[i], "off"))
 				audio = 0;
 			else
 				printf("Unknown combination: \"audio %s\"; audio recording will be on\n", argv[i]);
-		} else if (StrCmp(command, "-audiodevice") || StrCmp(command, "/audiodevice")) {
+		} else if (StrCmp(command, 2, "-audiodevice", "/audiodevice")) {
 			StrCopy(audioS, argv[++i]);
-		} else if (StrCmp(command, "-help") || StrCmp(command, "/help")) {
+		} else if (StrCmp(command, 2, "-help", "/help")) {
 			printHelp();
 			printf("Help is printed; exiting\n");
 			system("pause");
 			return 0;
-		} else if (StrCmp(command, "-ffpath") || StrCmp(command, "/ffpath"))
+		} else if (StrCmp(command, 2, "-ffpath", "/ffpath"))
 			StrCopy(ffpath, argv[++i]);
 		else {
 			printf("Can't recognize parameter: %s / %s\n", argv[i], command);
@@ -130,38 +135,38 @@ int main (int argc, char *argv[]) {
 				c = readWord(str, stdin);
 				for (size_t i = 0; i < strlen(str); i++)
 					str[i] = tolower(str[i]);
-				if (StrCmp(str, "") || StrCmp(str, "go") || StrCmp(str, "start"))
+				if (StrCmp(str, 3, "", "go", "start"))
 					break;
-				if (StrCmp(str, "exit") || StrCmp(str, "stop")) {
+				if (StrCmp(str, 2, "exit", "stop")) {
 					printf("Exiting\n");
 					system("pause");
 					return 0;
 				}
-				else if (StrCmp(str, "path") || StrCmp(str, "p")) {
+				else if (StrCmp(str, 2, "path", "p")) {
 					if (c == 10)
 						printf("Input path to ffmpeg (including \"ffmpeg.exe\"): ");
 					read(ffpath, stdin);
-				} else if (StrCmp(str, "name30") || StrCmp(str, "s30")) {
+				} else if (StrCmp(str, 2, "name30", "s30")) {
 					if (c == 10)
 						printf("Input path + name pattern for 720p@30 files: ");
 					read(name30, stdin);
-				} else if (StrCmp(str, "name60") || StrCmp(str, "s60")) {
+				} else if (StrCmp(str, 2, "name60", "s60")) {
 					if (c == 10)
 						printf("Input path + name pattern for 360p@60 files: ");
 					read(name60, stdin);
-				} else if (StrCmp(str, "number30") || StrCmp(str, "n30")) {
+				} else if (StrCmp(str, 2, "number30", "n30")) {
 					if (c == 10)
 						printf("Input starting number for 720p@30 files: ");
 					scanf("%d", &n30);
-				} else if (StrCmp(str, "number60") || StrCmp(str, "n60")) {
+				} else if (StrCmp(str, 2, "number60", "n60")) {
 					if (c == 10)
 						printf("Input starting number for 360p@60 files: ");
 					scanf("%d", &n60);
-				} else if (StrCmp(str, "formatout") || StrCmp(str, "fo") || StrCmp(str, "fout")) {
+				} else if (StrCmp(str, 3, "formatout", "fo", "fout")) {
 					if (c == 10)
 						printf("Input format for output files (without a dot): ");
 					read(format_out, stdin);
-				} else if (StrCmp(str, "toggleaudio") || StrCmp(str, "ta")) {
+				} else if (StrCmp(str, 2, "toggleaudio", "ta")) {
 					audio = !audio;
 				} else
 					printf("Unknown parameter: %s", str);

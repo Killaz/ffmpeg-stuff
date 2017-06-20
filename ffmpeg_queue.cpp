@@ -22,7 +22,7 @@
 	} \
 	system("pause"); \
 	return 0;
-#define VERSION "1.0.0"
+#define VERSION "1.0.1"
 
 #define printHelp() \
 	printf("ffmpeg_queue version: " VERSION "\n" \
@@ -94,6 +94,7 @@ int main(int argc, char *argv[]) {
 		in = fopen(str, "rt");
 		read(inDir, in);
 		fclose(in);
+		in = NULL;
 		sprintf(str, "erase cd_%I64u.txth", t);
 		system(str);
 		inDir[strlen(inDir) - 1] = '\\';
@@ -111,31 +112,31 @@ int main(int argc, char *argv[]) {
 	// Parameter string processing
 	if (!edited) {
 		for (i = 1; i < argc; i++) {
-			char command[30] = "";
+			char command[80] = "";
 			StrCat(command, argv[i]);
 			for (size_t j = 0; j < strlen(command); j++)
 				command[j] = tolower(command[j]);
-			if (StrCmp(command, "-inparams") || StrCmp(command, "/outparams"))
+			if (StrCmp(command, 2, "-inparams", "/inparams"))
 				StrCat(inParams, argv[++i]);
-			else if (StrCmp(command, "-outparams") || StrCmp(command, "/outparams"))
+			else if (StrCmp(command, 2, "-outparams", "/outparams"))
 				StrCopy(outParams, argv[++i]);
-			else if (StrCmp(command, "-insign") || StrCmp(command, "/insign"))
+			else if (StrCmp(command, 2, "-insign", "/insign"))
 				StrCopy(inSign, argv[++i]);
-			else if (StrCmp(command, "-outsign") || StrCmp(command, "/outsign"))
+			else if (StrCmp(command, 2, "-outsign", "/outsign"))
 				StrCopy(outSign, argv[++i]);
-			else if (StrCmp(command, "-indir") || StrCmp(command, "/indir")) {
+			else if (StrCmp(command, 2, "-indir", "/indir")) {
 				StrCopy(inDir, argv[++i]);
 				if (inDir[strlen(inDir) - 1] != '\\') {
 					inDir[strlen(inDir) + 1] = 0;
 					inDir[strlen(inDir)] = '\\';
 				}
-			} else if (StrCmp(command, "-outdir") || StrCmp(command, "/outdir")) {
+			} else if (StrCmp(command, 2, "-outdir", "/outdir")) {
 				StrCopy(outDir, argv[++i]);
 				if (outDir[strlen(outDir) - 1] != '\\') {
 					outDir[strlen(outDir) + 1] = 0;
 					outDir[strlen(outDir)] = '\\';
 				}
-			} else if (StrCmp(command, "-formats") || StrCmp(command, "/formats")) {
+			} else if (StrCmp(command, 2, "-formats", "/formats")) {
 				StrClear(format_in);
 				StrClear(format_out);
 				i++;
@@ -154,20 +155,20 @@ int main(int argc, char *argv[]) {
 						}
 					StrCatN(format_out, argv[i], comma, strlen(argv[i]));
 				}
-			} else if (StrCmp(command, "-nouser") || StrCmp(command, "/nouser"))
+			} else if (StrCmp(command, 2, "-nouser", "/nouser"))
 			user = 0, skip = 1;
-			else if (StrCmp(command, "-help") || StrCmp(command, "/help")) {
+			else if (StrCmp(command, 2, "-help", "/help")) {
 				printHelp();
 				quit("Help printed; quiting");
-			} else if (StrCmp(command, "-shutdown") || StrCmp(command, "/shutdown") || StrCmp(command, "-off") || StrCmp(command, "/off"))
+			} else if (StrCmp(command, 4, "-shutdown", "/shutdown", "-off", "/off"))
 				shutdown = 1;
-			else if (StrCmp(command, "-ffpath") || StrCmp(command, "/ffpath"))
+			else if (StrCmp(command, 2, "-ffpath", "/ffpath"))
 				StrCopy(ffpath, argv[++i]);
-			else if (StrCmp(command, "-skip") || StrCmp(command, "/skip"))
+			else if (StrCmp(command, 2, "-skip", "/skip"))
 				skip = 1;
-			else if (StrCmp(command, "-nooverrideoutdir") || StrCmp(command, "/nooverrideoutdir"))
+			else if (StrCmp(command, 2, "-nooverrideoutdir", "/nooverrideoutdir"))
 				overrideOutDir = 0;
-			else if (StrCmp(command, "-norepairpaths") || StrCmp(command, "/norepairpaths"))
+			else if (StrCmp(command, 2, "-norepairpaths", "/norepairpaths"))
 				repairPaths = 0;
 			else {
 				printf("Can't recognize parameter: %s / %s\n", argv[i], command);
@@ -220,7 +221,7 @@ int main(int argc, char *argv[]) {
 		sprintf(str, "erase %s", file);
 		system(str);
 	}
-	sprintf(str, "dir \"%s\" /B /A-D >> %s", inDir_norm, file);
+	sprintf(str, "dir \"%s\" /B /A-D >> \"%s\"", inDir_norm, file);
 	system(str);
 	if ((in = fopen(file, "rt")) == NULL) { // never has been tested, lol
 //		fclose(stdin);
@@ -298,7 +299,7 @@ int main(int argc, char *argv[]) {
 		c = readWord(str, stdin);
 		for (size_t i = 0; i < strlen(str); i++)
 			str[i] = tolower(str[i]);
-		if (StrCmp(str, "") || StrCmp(str, "go") || StrCmp(str, "start")) {
+		if (StrCmp(str, 3, "", "go", "start")) {
 			if (edited) {
 				user = 0;
 				StrClear(str);
@@ -310,22 +311,22 @@ int main(int argc, char *argv[]) {
 				goto Work;
 		}
 		edited = 1;
-		if (StrCmp(str, "exit") || StrCmp(str, "stop")) {
+		if (StrCmp(str, 2, "exit", "stop")) {
 			printf("Exiting;\n");
 			goto Deleting;
-		} else if (StrCmp(str, "path") || StrCmp(str, "p")) {
+		} else if (StrCmp(str, 2, "path", "p")) {
 			if (c == 10)
 				printf("Введите путь до ffmpeg.exe (включая сам \"ffmpeg.exe\"): ");
 			read(ffpath, stdin);
-		} else if (StrCmp(str, "inparams") || StrCmp(str, "ip")) {
+		} else if (StrCmp(str, 2, "inparams", "ip")) {
 			if (c == 10)
 				printf("Введите строку параметров для входных файлов: ");
 			read(inParams, stdin);
-		} else if (StrCmp(str, "insign") || StrCmp(str, "is")) {
+		} else if (StrCmp(str, 2, "insign", "is")) {
 			if (c == 10)
 				printf("Введите параметр, предворяющий написание входного файла (\"-i\"): ");
 			read(inSign, stdin);
-		} else if (StrCmp(str, "indir") || StrCmp(str, "id")) {
+		} else if (StrCmp(str, 4, "indir", "id", "id_nr", "indir_norepair")) {
 			if (c == 10)
 				printf("Введите путь до папки с входными файлами: ");
 			read(inDir, stdin);
@@ -335,7 +336,7 @@ int main(int argc, char *argv[]) {
 			}
 			StrCopy(inDir_norm, inDir);
 			NormalRus(inDir_norm);
-			if (!StrCmp(str, "id_nr") && !StrCmp(str, "indir_norepair") && !StrCompare(inDir, ":\\", 1) && inDir[0] != '%') {
+			if (!StrCmp(str, 2, "id_nr", "indir_norepair") && !StrCompare(inDir, ":\\", 1) && inDir[0] != '%') {
 				StrClear(str);
 				sprintf(str, "%s%s", cd, inDir);
 				StrCopy(inDir, str);
@@ -346,20 +347,20 @@ int main(int argc, char *argv[]) {
 				NormalRus(inDir_norm);
 			}
 			goto Opening;
-		} else if (StrCmp(str, "formatin") || StrCmp(str, "fi") || StrCmp(str, "fin")) {
+		} else if (StrCmp(str, 3, "formatin", "fi", "fin")) {
 			if (c == 10)
 				printf("Введите формат входных файлов для перекодировки(без точки): ");
 			read(format_in, stdin);
 			goto Opening;
-		} else if (StrCmp(str, "outparams") || StrCmp(str, "op")) {
+		} else if (StrCmp(str, 2, "outparams", "op")) {
 			if (c == 10)
 				printf("Введите строку параметров для выходных файлов: ");
 			read(outParams, stdin);
-		} else if (StrCmp(str, "outsign") || StrCmp(str, "os")) {
+		} else if (StrCmp(str, 2, "outsign", "os")) {
 			if (c == 10)
 				printf("Введите строку параметров для выходных файлов: ");
 			read(outSign, stdin);
-		} else if (StrCmp(str, "outdir") || StrCmp(str, "od") || StrCmp(str, "od_nr") || StrCmp(str, "outdir_norepair")) {
+		} else if (StrCmp(str, 4, "outdir", "od", "od_nr", "outdir_norepair")) {
 			if (c == 10)
 				printf("Введите путь до папки вывода: ");
 			read(outDir, stdin);
@@ -369,7 +370,7 @@ int main(int argc, char *argv[]) {
 			}
 			StrCopy(outDir_norm, outDir);
 			NormalRus(outDir_norm);
-			if (!StrCmp(str, "od_nr") && !StrCmp(str, "outdir_norepair") && !StrCompare(inDir, ":\\", 1) && inDir[0] != '%') {
+			if (!StrCmp(str, 2, "od_nr", "outdir_norepair") && !StrCompare(inDir, ":\\", 1) && inDir[0] != '%') {
 				sprintf(str, "%s%s", inDir, outDir);
 				StrCopy(outDir, str);
 				sprintf(str, "%s%s", inDir_norm, outDir_norm);
@@ -379,12 +380,12 @@ int main(int argc, char *argv[]) {
 				NormalRus(outDir_norm);
 			}
 			goto Opening;
-		} else if (StrCmp(str, "formatout") || StrCmp(str, "fo") || StrCmp(str, "fout")) {
+		} else if (StrCmp(str, 3, "formatout", "fo", "fout")) {
 			if (c == 10)
 				printf("Введите формат выходных файлов (без точки): ");
 			read(format_out, stdin);
 			goto Opening;
-		} else if (StrCmp(str, "shutdown") || StrCmp(str, "off"))
+		} else if (StrCmp(str, 2, "shutdown", "off"))
 			shutdown = !shutdown;
 		else
 			printf("Can't recognize command: %s\n", str);
@@ -479,9 +480,7 @@ int main(int argc, char *argv[]) {
 	}
 	sprintf(str, "title \"Finished: %I64d\"", (unsigned long long) time(0));
 	system(str);
-	memset(str, 0, sizeof(str));
-	StrCat(str, "erase ");
-	StrCat(str, file);
+	sprintf(str, "erase %s", file);
 	if (!system(str)) {
 		quit("Временный файл был удален");
 	} else {

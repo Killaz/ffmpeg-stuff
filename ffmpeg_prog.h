@@ -1,6 +1,10 @@
 #ifndef FFMPEG_PROG_H
 #define FFMPEG_PROG_H
 
+#include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
+
 // Copys <from> to the end of <where>
 void StrCat(char *where, const char *from) {
 	int i = 0, j = 0;
@@ -24,18 +28,6 @@ void StrCatN(char *where, const char *from, int start, int finish) {
 // Copy <from>'s part upto <n>'s character to <where>
 void StrCatN(char *where, const char *from, int n) {
 	StrCatN(where, from, 0, n);
-}
-
-// Сравнивает сроку s1 со строкой s2
-// Compares string <s1> and <s2>: returns 1 if they're equal
-bool StrCmp(const char *s1, const char *s2) {
-	int len = strlen(s1);
-	if (len != (int) strlen(s2))
-		return 0;
-	for (int i = 0; i < len; i++)
-		if (s1[i] != s2[i])
-			return 0;
-	return 1;
 }
 
 // Сравнивает окончание строки <where> со строкой <what>
@@ -78,10 +70,52 @@ void StrClear(char *str) {
 	StrClear(str, strlen(str));
 }
 
-// Copys string <from> to string <to>
-void StrCopy(char *to, char *from) {
+// Copys string <from> to string <to>, returns 0 if at least one of pointers is NULL
+bool StrCopy(char *to, char *from) {
+	if (to == NULL || from == NULL)
+		return 0;
 	StrClear(to);
 	StrCat(to, from);
+	return 1;
+}
+
+// Сравнивает сроку s1 со строкой s2
+// Compares string <s1> and <s2>: returns 1 if they're equal
+bool StrCmp(const char *s1, const char *s2) {
+	int len = strlen(s1);
+	if (len != (int) strlen(s2))
+		return 0;
+	for (int i = 0; i < len; i++)
+		if (s1[i] != s2[i])
+			return 0;
+	return 1;
+}
+
+bool StrCmp(const char *str, int num, ...) {
+	char *tmp;
+	va_list ap;
+	int len = strlen(str);
+	va_start (ap, num);
+	while (num--) {
+		tmp = va_arg(ap, char*);
+		if (len != strlen(tmp))
+			continue;
+		bool flag = 1;
+		for (int i = 0; i < len; i++)
+			if (str[i] != tmp[i]) {
+				flag = 0;
+				break;
+			}
+		if (flag) {
+			int i = 0;
+			while (va_arg(ap, char*))
+				;
+			va_end(ap);
+			return 1;
+		}
+	}
+	va_end(ap);
+	return 0;
 }
 
 // Reads string (upto "Enter" symbol or EOF) from <f> to <s>: returns 1 if read was sucsessful
