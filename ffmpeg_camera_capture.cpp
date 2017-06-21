@@ -20,6 +20,8 @@
 	       "[-number60 <integer>] - set starting number for 60fps videos [default: 0]\n" \
 	       "[-audio <boolean>] - set audio recording on or off [default: off]\n" \
 	       "[-audioDevice <string>] - set name of audio device to use (don't forget quotes)\n" \
+	       "[-silent <boolean>] - enable/disable beeps at start and when error occures [default: 0]\n" \
+	       "[-preview <boolean>] - enable/disable preview playing [default: 1]\n" \
 	      );
 
 int numberCorrect(char *name, int n, char *format_out) {
@@ -42,14 +44,15 @@ int numberCorrect(char *name, int n, char *format_out) {
 }
 
 int main (int argc, char *argv[]) {
-	char c, ffpath[300] = "C:\\ffmpeg\\bin\\ffmpeg.exe", name30[200] = "%%userprofile%%\\Videos\\3D-720", name60[200] = "%%userprofile%%\\Videos\\3D-360",
+	char c, ffpath[300] = "C:\\ffmpeg\\bin\\ffmpeg.exe", name30[200] = "\%userprofile\%\\Videos\\3D-720", name60[200] = "\%userprofile\%\\Videos\\3D-360",
 	     str[2000], audioS[200] = "\"@device_cm_{33D9A762-90C8-11D0-BD43-00A0C911CE86}\\wave_{3E91D00C-7F55-47F0-B9C6-986C43CFE953}\"",
 	     format_out[15] = "mkv";
 	int n30 = 0, n60 = 0;
-	bool audio = 0;
+	bool audio = 0, silent = 0, preview = 1;
 	for (int i = 1; i < argc; i++) {
 		char command[80] = "";
 		StrCat(command, argv[i]);
+		printf("command = %s\n", argv[i]);
 		for (size_t j = 0; j < strlen(command); j++)
 			command[j] = tolower(command[j]);
 		if (StrCmp(command, 2, "-name30", "/name30"))
@@ -64,10 +67,10 @@ int main (int argc, char *argv[]) {
 			i++;
 			if (StrCmp(argv[i], 3, "1", "true", "on"))
 				audio = 1;
-			else if (StrCmp(argv[i], "0" ) || StrCmp(argv[i], "false") || StrCmp(argv[i], "off"))
+			else if (StrCmp(argv[i], 3, "0", "false", "off"))
 				audio = 0;
 			else
-				printf("Unknown combination: \"audio %s\"; audio recording will be on\n", argv[i]);
+				printf("Unknown combination: \"audio %s\"; audio recording will be off\n", argv[i]);
 		} else if (StrCmp(command, 2, "-audiodevice", "/audiodevice")) {
 			StrCopy(audioS, argv[++i]);
 		} else if (StrCmp(command, 2, "-help", "/help")) {
@@ -77,7 +80,23 @@ int main (int argc, char *argv[]) {
 			return 0;
 		} else if (StrCmp(command, 2, "-ffpath", "/ffpath"))
 			StrCopy(ffpath, argv[++i]);
-		else {
+		else if (StrCmp(command, 2, "-silent", "/silent")) {
+			i++;
+			if (StrCmp(argv[i], 3, "1", "true", "on"))
+				silent = 1;
+			else if (StrCmp(argv[i], 3, "0", "false", "off"))
+				silent = 0;
+			else
+				printf("Unknown combination: \"silent: %s\"; silent mode will be off\n", argv[i]);
+		} else if (StrCmp(command, 2, "-preview", "/preview")) {
+			i++;
+			if (StrCmp(argv[i], 3, "1", "true", "on"))
+				preview = 1;
+			else if (StrCmp(argv[i], 3, "0", "false", "off"))
+				preview = 0;
+			else
+				printf("Unknown combination: \"preview: %s\"; preview will be played\n", argv[i]);
+		} else {
 			printf("Can't recognize parameter: %s / %s\n", argv[i], command);
 			system("pause");
 		}
@@ -85,9 +104,9 @@ int main (int argc, char *argv[]) {
 	bool menu = 1;
 	while (1) {
 		if (menu) {
-			printf("\nffpath = %s\naudio (%s) = %s\nname30 (number = %d) = %s\nname60 (number = %d) = %s\nPress '3' for start recording 1280x720@30fps stereo video, "
-			       "'6' for 640x320@60fps, 'p' for editing parameters, 'Esc' for exit\n\n>>",
-			       ffpath, audio ? "on" : "off", audioS, n30, name30, n60, name60);
+			printf("\nffpath = %s\naudio (%s) = %s, silence = %s\nname30 (number = %d) = %s\nname60 (number = %d) = %s\nPress '3' for start recording 1280x720@30fps stereo video, "
+			       "'6' for 640x320@60fps, 'p' for editing parameters, v for opening preview vindow (close it with Ctrl+C or Esc), 'Esc' for exit\n\n>>",
+			       ffpath, audio ? "on" : "off", audioS, silent ? "on" : "off", n30, name30, n60, name60);
 			menu = 0;
 		}
 		c = getch();
@@ -102,36 +121,45 @@ int main (int argc, char *argv[]) {
 			sprintf(str, "%s -f dshow -s 1280x720 -vcodec mjpeg -framerate 30 -rtbufsize 400M -i video=\"Stereo Vision 1\""
 			             "%s%s -f dshow -s 1280x720 -vcodec mjpeg -framerate 30 -rtbufsize 400M -i video=\"Stereo Vision 2\" -c:v copy "
 			             "-c:a libvorbis -q:a 1 -af volume=5 -map 0:0 -map 0:1? -copyts -y \"%s-%03d-left.%s\" -map 1:0 -c "
-			             "copy -copyts -y \"%s-%03d-right.%s\"",
-			             ffpath, audio ? ":audio=" : "", audio ? audioS : "", name30, n30, format_out, name30, n30, format_out);
+			             "copy -copyts -y \"%s-%03d-right.%s\" %s",
+			             ffpath, audio ? ":audio=" : "", audio ? audioS : "", name30, n30, format_out, name30, n30, format_out, preview ? "-map 0:0 -copytb 1 -copyts -f mjpeg udp://127.0.0.1:1235/" : "");
 			printf("%s\n", str);
-			Beep(3000, 600);
-			Beep(5000, 400);
-			Beep(7000, 300);
-			if (system(str))
+			if (!silent) {
+				Beep(3000, 600);
+				Beep(5000, 400);
+				Beep(7000, 300);
+			}
+			if (system(str) && !silent)
 				Beep(9000, 1300), printf("Error of ffmpeg working\n");
 		} else if (c == '6') {
 			n60 = numberCorrect(name60, n60, format_out);
 			sprintf(str, "%s -f dshow -s 640x360 -vcodec mjpeg -framerate 60 -rtbufsize 400M -i video=\"Stereo Vision 1\""
 			             "%s%s -f dshow -s 640x360 -vcodec mjpeg -framerate 60 -rtbufsize 400M -i video=\"Stereo Vision 2\" -c:v copy "
 			             "-c:a libvorbis -q:a 1 -af volume=5 -map 0:0 -map 0:1? -copyts -y \"%s-%03d-left.%s\" -map 1:0 -c "
-			             "copy -copyts -y \"%s-%03d-right.%s\"",
-			             ffpath, audio ? ":audio=" : "", audio ? audioS : "", name60, n60, name60, format_out, n60, format_out);
+			             "copy -copyts -y \"%s-%03d-right.%s\" %s",
+			             ffpath, audio ? ":audio=" : "", audio ? audioS : "", name60, n60, format_out, name60, n60, format_out, preview ? "-map 0:0 -copytb 1 -copyts -f mjpeg udp://127.0.0.1:1235/" : "");
 			printf("%s\n", str);
-			Beep(7000, 600);
-			Beep(5000, 400);
-			Beep(3000, 300);
-			if (system(str))
+			if (!silent) {
+				Beep(7000, 600);
+				Beep(5000, 400);
+				Beep(3000, 300);
+			}
+			if (system(str) && !silent)
 				Beep(9000, 1300), printf("Error of ffmpeg working\n");
-		} else if (c == 'p'|| c == 'P') {
+		} else if (c == 'v' || c == 'V') {
+			sprintf(str, "start D:\\ffmpeg\\bin\\ffplay -framerate 80 -f mjpeg -probesize 32 udp://127.0.0.1:1235");
+			system(str);
+		} else if (c == 'p' || c == 'P') {
 			while (1) {
-				printf("\n\"path\" / \"p\" for entering path to ffmpeg.exe\n\"name30\" for entering path+name for 1280x720@30fps out files\n"
-				       "\"name60\" for entering path+name pattern for 640x320@60fps out files\n\"toggleAudio\" for enable/disale audio recording\n"
+				printf("\n\"path\" / \"p\" for entering path to ffmpeg.exe\n  now: %s\n\"name30\" / \"s30\" for entering path+name for 1280x720@30fps out files\n  now: %s\n"
+				       "\"name60\" / \"s60\" for entering path+name pattern for 640x320@60fps out files\n  now: %s\n"
 				       "* \"pattern\" means that files will be like \"pattern-resolution-number-eye\"\n"
-				       "\"number30\" for entering starting number for 720p@30 files\n\"number60\" for entering sarting number for 320p@60\n"
+				       "\"number30\" / \"n30\" for entering starting number for 720p@30 files: %d now\n\"number60\" / \"n60\"for entering sarting number for 320p@60: %d now\n"
 				       "* \"starting number\" works only when there's no file with this number, otherwise first unused number will be used\n"
 				       "\"audio\" for entering audio device's name (look for it, typing \"ffmpeg -list_deices true -f dshow -i dummy\")\n"
-				       "\"exit\" / \"stop\" for exiting from program\n(empty string) / \"start\" / \"go\"\n");
+				       "\"toggleAudio\" / \"ta\" for enable/disale audio recording: %s now\n\"toggleSilence\" / \"ts\" for turn on/off silent-mode: %s now\n"
+				       "\"togglePreview\" / \"tp\" for enable/disable preview playing (left eye video will be displayed): %s now\n"
+				       "\"exit\" / \"stop\" for exiting from program\n(empty string) / \"start\" / \"go\"\n", ffpath, name30, name60, n30, n60, audio ? "on" : "off", silent ? "silent" : "noisy", preview ? "on" : "off");
 				c = readWord(str, stdin);
 				for (size_t i = 0; i < strlen(str); i++)
 					str[i] = tolower(str[i]);
@@ -158,17 +186,23 @@ int main (int argc, char *argv[]) {
 					if (c == 10)
 						printf("Input starting number for 720p@30 files: ");
 					scanf("%d", &n30);
+					getchar();
 				} else if (StrCmp(str, 2, "number60", "n60")) {
 					if (c == 10)
 						printf("Input starting number for 360p@60 files: ");
 					scanf("%d", &n60);
+					getchar();
 				} else if (StrCmp(str, 3, "formatout", "fo", "fout")) {
 					if (c == 10)
 						printf("Input format for output files (without a dot): ");
 					read(format_out, stdin);
-				} else if (StrCmp(str, 2, "toggleaudio", "ta")) {
+				} else if (StrCmp(str, 2, "toggleaudio", "ta"))
 					audio = !audio;
-				} else
+				else if (StrCmp(str, 2, "togglesilence", "ts"))
+					silent = !silent;
+				else if (StrCmp(str, 2, "togglepreview", "tp"))
+					preview = !preview;
+				else
 					printf("Unknown parameter: %s", str);
 			}
 		} else {

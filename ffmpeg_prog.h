@@ -25,9 +25,12 @@ void StrCatN(char *where, const char *from, int start, int finish) {
 	where[i] = 0;
 }
 
-// Copy <from>'s part upto <n>'s character to <where>
-void StrCatN(char *where, const char *from, int n) {
+// Copy <from>'s part upto <n>'s character to <where>: returns 0, if n < 1, 0 otherwise
+bool StrCatN(char *where, const char *from, int n) {
+	if (n <= 0)
+		return 0;
 	StrCatN(where, from, 0, n);
+	return 1;
 }
 
 // Сравнивает окончание строки <where> со строкой <what>
@@ -42,7 +45,7 @@ bool StrCompareEndings(const char *where, const char *what) {
 	return 1;
 }
 
-// Compares str1[from..to] with str2
+// Compares <str2> with <str1>[<from>..end]: returns 1 if <str1> contains <str2>, 0 otherwise
 bool StrCompare(const char *str1, const char *str2, int from) {
 	int len1 = strlen(str1), len2 = strlen(str2);
 	if (from < 0 || len1 - from < len2)
@@ -91,6 +94,7 @@ bool StrCmp(const char *s1, const char *s2) {
 	return 1;
 }
 
+// Compares string <str> with <num> strings going after, returns 1 if it's equal to one of them
 bool StrCmp(const char *str, int num, ...) {
 	char *tmp;
 	va_list ap;
